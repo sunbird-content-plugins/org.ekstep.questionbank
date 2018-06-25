@@ -61,7 +61,7 @@ angular.module('createquestionapp', [])
       }
     };
     $scope.csspath = ecEditor.resolvePluginResource(pluginInstance.manifest.id, pluginInstance.manifest.ver, 'editor/style.css');
-    $scope.contentNotFound = ecEditor.resolvePluginResource(pluginInstance.manifest.id, pluginInstance.manifest.ver, 'assets/contentnotfound.jpg');
+    $scope.contentNotFound = ecEditor.resolvePluginResource(pluginInstance.manifest.id, pluginInstance.manifest.ver, 'assets/contentnotfound.jpg'); 
     $scope.questionSetConfigObj = {
       "title": "",
       "max_score": 1,
@@ -282,8 +282,8 @@ angular.module('createquestionapp', [])
       }
 
       var filterMetaData = {};
-      ecEditor.dispatchEvent("org.ekstep.editcontentmeta:showpopup1", { action: 'question-filter-view', subType: 'questions', framework: "NCF", rootOrgId: "*", type: "content", popup: false, metadata: filterMetaData });
-      //ecEditor.dispatchEvent('org.ekstep.editcontentmeta:showpopup', { action: 'question-filter-view', subType: 'questions', framework: ecEditor.getContext('framework'), rootOrgId: ecEditor.getContext('channel'), type: 'content', popup: false, metadata: filterMetaData})
+      //ecEditor.dispatchEvent("org.ekstep.editcontentmeta:showpopup1", { action: 'question-filter-view', subType: 'questions', framework: "NCF", rootOrgId: "*", type: "content", popup: false, metadata: filterMetaData });
+      ecEditor.dispatchEvent('org.ekstep.editcontentmeta:showpopup', { action: 'question-filter-view', subType: 'questions', framework: ecEditor.getContext('framework'), rootOrgId: ecEditor.getContext('channel'), type: 'content', popup: false, metadata: filterMetaData})
       ecEditor.dispatchEvent($scope.pluginIdObj.concepts_id + ':init', {
         element: 'queSetConceptsTextBox',
         selectedConcepts: [], // All composite keys except mediaType
@@ -502,8 +502,8 @@ angular.module('createquestionapp', [])
       delete $scope.selectedQueIndex;
       $scope.selectedQueIndex = index;
       var filterMetaData = {};
-      ecEditor.dispatchEvent("org.ekstep.editcontentmeta:showpopup1", { action: 'question-filter-view', subType: 'questions', framework: "NCF", rootOrgId: "*", type: "content", popup: false, metadata: filterMetaData });
-      //ecEditor.dispatchEvent('org.ekstep.editcontentmeta:showpopup', { action: 'question-filter-view', subType: 'questions', framework: ecEditor.getContext('framework'), rootOrgId: ecEditor.getContext('channel'), type: 'content', popup: false, metadata: filterMetaData})
+      //ecEditor.dispatchEvent("org.ekstep.editcontentmeta:showpopup1", { action: 'question-filter-view', subType: 'questions', framework: "NCF", rootOrgId: "*", type: "content", popup: false, metadata: filterMetaData });
+      ecEditor.dispatchEvent('org.ekstep.editcontentmeta:showpopup', { action: 'question-filter-view', subType: 'questions', framework: ecEditor.getContext('framework'), rootOrgId: ecEditor.getContext('channel'), type: 'content', popup: false, metadata: filterMetaData})
     }
 
     /**  Funtion to dispatch event to question creation plugin for creating new questions
