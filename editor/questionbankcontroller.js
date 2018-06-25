@@ -62,7 +62,6 @@ angular.module('createquestionapp', [])
     };
     $scope.csspath = ecEditor.resolvePluginResource(pluginInstance.manifest.id, pluginInstance.manifest.ver, 'editor/style.css');
     $scope.contentNotFound = ecEditor.resolvePluginResource(pluginInstance.manifest.id, pluginInstance.manifest.ver, 'assets/contentnotfound.jpg');
-
     $scope.questionSetConfigObj = {
       "title": "",
       "max_score": 1,
