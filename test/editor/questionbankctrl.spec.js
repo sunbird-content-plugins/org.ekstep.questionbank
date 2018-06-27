@@ -1,5 +1,5 @@
 describe("Question bank EditorPlugin", function() {
-  var plugin, $controller, $window, $scope,assessmentService,searchService,question;
+  var plugin, $controller, $window, $scope,assessmentService,searchService,question,plugins,loaded,saveQuestion,formChange;
 
   beforeEach(module('createquestionapp'));
 
@@ -102,7 +102,8 @@ describe("Question bank EditorPlugin", function() {
         },
         "media": []
       }
-    }
+    };
+    plugins = [{"id":"org.ekstep.questionunit.mtf","ver":"1.0","type":"plugin"},{"id":"org.ekstep.questionunit.mcq","ver":"1.0","type":"plugin"},{"id":"org.ekstep.questionunit.ftb","ver":"1.0","type":"plugin"}];
     assessmentService = jasmine.createSpyObj("assessment", ["getQuestions","getItem"]);
     searchService = jasmine.createSpyObj("search", ["search"]);
     metaService = jasmine.createSpyObj("meta", ["getCategorys"]);
@@ -116,6 +117,18 @@ describe("Question bank EditorPlugin", function() {
         return metaService;
       }
     });    
+    loaded = jasmine.createSpy('editor:template:loaded');
+    window.addEventListener('editor:template:loaded', function (e) {
+      loaded();
+    });
+    saveQuestion = jasmine.createSpy('org.ekstep.questionbank:saveQuestion');
+    window.addEventListener('org.ekstep.questionbank:saveQuestion', function (e) {
+      saveQuestion();
+    });
+    formChange = jasmine.createSpy('editor:form:change');
+    window.addEventListener('editor:form:change', function (e) {
+      formChange();
+    });
   });
 
 describe("Question Bank", function() {
@@ -136,6 +149,7 @@ describe("Question Bank", function() {
     spyOn(ecEditor, "dispatchEvent").and.callThrough();
     spyOn(ecEditor, "addEventListener").and.callThrough();
     spyOn($scope, "sendForPreview").and.callThrough();
+    spyOn($scope, "loadPlugins").and.callThrough();
     spyOn($scope, "saveConfig").and.callThrough();
     window.context = { "content_id": "", "sid": "rctrs9r0748iidtuhh79ust993", "user": { "id": "390", "name": "Chetan Sachdev", "email": "chetan.sachdev@tarento.com", "avtar": "https://release.ekstep.in/media/com_easysocial/defaults/avatars/user/medium.png", "logout": "https://release.ekstep.in/index.php?option=com_easysocial&view=login&layout=logout" }, "baseURL": "https://release.ekstep.in/", "editMetaLink": "/component/ekcontent/contentform/do_10097535?Itemid=0", "contentId": "do_112467889506631680131", "uid": "390", "etags": { "app": [], "partner": [], "dims": [] }, "pdata": { "id": "in.ekstep", "ver": "1.0", "pid": "contenteditor" } };
     iFrameArea = document.createElement('iframe');
@@ -213,6 +227,10 @@ describe("Question Bank", function() {
   it("should Call init", function() {
     expect($scope).not.toBeUndefined();
   });
+  xit("Should load Question set plugins",function(){
+    $scope.loadPlugins(plugins);
+    expect($scope.loadPlugins).toHaveBeenCalled();
+  });
   it("Should call search questions function", function() {
     $scope.searchQuestions();
     expect($scope.searchQuestions).toHaveBeenCalled();
@@ -255,8 +273,20 @@ describe("Question Bank", function() {
     expect(ecEditor.dispatchEvent).toHaveBeenCalled();
   });
   it("Should call saveConfig function", function() {
-    // $scope.saveConfig(questionBody, question.version);
-    // expect($scope.saveConfig).toHaveBeenCalled();
+    var obj = {};
+    obj.formAction = "question-filter-view";
+    obj.templatePath = "";
+    ecEditor.dispatchEvent("editor:template:loaded",obj);
+    ecEditor.dispatchEvent("org.ekstep.questionbank:saveQuestion",[]);
+    var cb = $scope.searchQuestions({},function(done){
+      Function.prototype.apply.apply(self.timer.clearTimeout, [j$.getGlobal(), [timeout]]);
+          if (err) {
+            onException(new Error(err));
+          }
+      done();
+    });
+    expect($scope.searchQuestions).toHaveBeenCalled();
+    ecEditor.dispatchEvent("editor:form:change",[]);
   });
 });
 
