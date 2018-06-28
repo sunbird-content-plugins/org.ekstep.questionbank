@@ -1,5 +1,6 @@
 describe("Question bank EditorPlugin", function() {
-  var plugin, $controller, $window, $scope,assessmentService,searchService,question,plugins,loaded,saveQuestion,formChange;
+  var plugin, $controller, $window, $scope,assessmentService,searchService,question,
+      plugins,loaded,saveQuestion,formChange,editQuestion;
 
   beforeEach(module('createquestionapp'));
 
@@ -103,6 +104,45 @@ describe("Question bank EditorPlugin", function() {
         "media": []
       }
     };
+    editQuestion = {
+      "template": "NA",
+      "itemType": "UNIT",
+      "code": "NA",
+      "qlevel": "EASY",
+      "channel": "in.ekstep",
+      "language": [
+      "English"
+      ],
+      "medium": "English",
+      "title": "uwyewuieyiuwuiewwiueyuiweyiuy",
+      "type": "mcq",
+      "createdOn": "2018-06-28T05:37:29.792+0000",
+      "objectType": "AssessmentItem",
+      "isShuffleOption": false,
+      "appId": "ekstep_portal",
+      "options": "[{\"answer\":true,\"value\":{\"type\":\"text\",\"asset\":\"1\",\"resvalue\":0,\"resindex\":0}}]",
+      "lastUpdatedOn": "2018-06-28T05:37:42.570+0000",
+      "identifier": "do_1125351055342960641490",
+      "IL_SYS_NODE_TYPE": "DATA_NODE",
+      "question": "<p>kjk</p>\n",
+      "consumerId": "f6878ac4-e9c9-4bc4-80be-298c5a73b447",
+      "graph_id": "domain",
+      "nodeType": "DATA_NODE",
+      "version": 2,
+      "versionKey": "1530164262570",
+      "framework": "NCF",
+      "createdBy": "390",
+      "IL_FUNC_OBJECT_TYPE": "AssessmentItem",
+      "max_score": 1,
+      "name": "uwyewuieyiuwuiewwiueyuiweyiuy",
+      "template_id": "NA",
+      "category": "MCQ",
+      "IL_UNIQUE_ID": "do_1125351055342960641490",
+      "status": "Live",
+      "node_id": 73426,
+      "isSelected": true,
+      "$$hashKey": "object:3091"
+    }
     plugins = [{"id":"org.ekstep.questionunit.mtf","ver":"1.0","type":"plugin"},{"id":"org.ekstep.questionunit.mcq","ver":"1.0","type":"plugin"},{"id":"org.ekstep.questionunit.ftb","ver":"1.0","type":"plugin"}];
     assessmentService = jasmine.createSpyObj("assessment", ["getQuestions","getItem"]);
     searchService = jasmine.createSpyObj("search", ["search"]);
@@ -280,9 +320,9 @@ describe("Question Bank", function() {
     ecEditor.dispatchEvent("org.ekstep.questionbank:saveQuestion",[]);
     var cb = $scope.searchQuestions({},function(done){
       Function.prototype.apply.apply(self.timer.clearTimeout, [j$.getGlobal(), [timeout]]);
-          if (err) {
-            onException(new Error(err));
-          }
+      if (err) {
+        onException(new Error(err));
+      }
       done();
     });
     expect($scope.searchQuestions).toHaveBeenCalled();
