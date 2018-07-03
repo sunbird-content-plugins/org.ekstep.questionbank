@@ -89,6 +89,7 @@ angular.module('createquestionapp', [])
     });
 
     $scope.searchQuestions = function (filterData, callback) {
+      $scope.itemsLoading = true;
       var data = {
         request: {
           filters: {
