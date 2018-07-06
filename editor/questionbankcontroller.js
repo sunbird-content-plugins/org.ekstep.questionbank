@@ -593,6 +593,7 @@ angular.module('createquestionapp', [])
 
     $scope.sendForPreview = function (quesBody, version) {
       var qObj;
+      var itemIframe = org.ekstep.contenteditor.jQuery('#itemIframe')[0];
       if (version == 1) {
         qObj = {
           "data": {
@@ -639,7 +640,6 @@ angular.module('createquestionapp', [])
         "element": "#itemIframe"
       };
 
-      // document.getElementById("itemIframe").contentDocument.location.reload(true);
       var pluginInstances = ecEditor.getPluginInstances();
       var previewInstance = _.find(pluginInstances, function (pi) {
         return pi.manifest.id === $scope._constants.previewPlugin
