@@ -171,6 +171,19 @@ angular.module('createquestionapp', [])
         }
       });
     };
+    //Load all plugins
+    $scope.loadPlugins = function(plugins, manifestMedia) {
+      var pluginObj = [];
+      if (!Array.isArray(plugins)) {
+        pluginObj.push(plugins);
+        plugins = pluginObj;
+      }
+      org.ekstep.pluginframework.pluginManager.loadAllPlugins(plugins, manifestMedia, function() {
+        if (typeof PluginManager != 'undefined') {
+          PluginManager.pluginMap = org.ekstep.pluginframework.pluginManager.plugins;
+        }
+      });
+    }
 
     /**
      *  init funtion is called when html is loaded
@@ -180,20 +193,6 @@ angular.module('createquestionapp', [])
       $scope.itemsLoading = true;
       $scope.searchQuestions();
       $scope.selectedIndex = undefined;
-
-      //Load all plugins
-      $scope.loadPlugins = function(plugins, manifestMedia) {
-        var pluginObj = [];
-        if (!Array.isArray(plugins)) {
-          pluginObj.push(plugins);
-          plugins = pluginObj;
-        }
-        org.ekstep.pluginframework.pluginManager.loadAllPlugins(plugins, manifestMedia, function() {
-          if (typeof PluginManager != 'undefined') {
-            PluginManager.pluginMap = org.ekstep.pluginframework.pluginManager.plugins;
-          }
-        });
-      }
       var qsManifest = org.ekstep.pluginframework.pluginManager.getPluginManifest($scope.pluginIdObj.question_set_id);
       var qsVesrion = qsManifest.ver.split('.')[0];
       var data = {
