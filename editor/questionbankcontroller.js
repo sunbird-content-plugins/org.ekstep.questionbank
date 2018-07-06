@@ -593,7 +593,6 @@ angular.module('createquestionapp', [])
 
     $scope.sendForPreview = function (quesBody, version) {
       var qObj;
-      var itemIframe = org.ekstep.contenteditor.jQuery('#itemIframe')[0];
       if (version == 1) {
         qObj = {
           "data": {
@@ -649,23 +648,6 @@ angular.module('createquestionapp', [])
       }
       confData.contentBody = previewInstance.getQuestionPreviwContent(data[$scope._constants.questionsetPlugin]);
       ecEditor.dispatchEvent("atpreview:show", confData);
-      var userData = {};
-      var configuration = {};
-      userData.etags = ecEditor.getContext('etags') || [];
-      configuration.context = {
-          'mode':'edit',
-          'contentId': ecEditor.getContext('contentId'),
-          'sid': ecEditor.getContext('sid'),
-          'uid': ecEditor.getContext('uid'), 
-          'channel': ecEditor.getContext('channel') || "in.ekstep", 
-          'pdata': ecEditor.getContext('pdata') || {id: "in.ekstep", pid: "", ver: "1.0"}, 
-          'app': userData.etags.app || [], 
-          'dims': userData.etags.dims || [], 
-          'partner': userData.etags.partner || []
-      }; 
-      configuration.config = {'showEndPage': false};
-      configuration.data = confData.contentBody;
-      itemIframe.contentWindow.initializePreview(configuration);
     }
 
     $scope.cancel = function () {
