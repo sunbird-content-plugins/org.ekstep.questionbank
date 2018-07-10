@@ -170,20 +170,6 @@ angular.module('createquestionapp', [])
         }
       });
     };
-    //Load all plugins
-    $scope.loadPlugins = function(plugins, manifestMedia) {
-      var pluginObj = [];
-      if (!Array.isArray(plugins)) {
-        pluginObj.push(plugins);
-        plugins = pluginObj;
-      }
-      org.ekstep.pluginframework.pluginManager.loadAllPlugins(plugins, manifestMedia, function() {
-        if (typeof PluginManager != 'undefined') {
-          PluginManager.pluginMap = org.ekstep.pluginframework.pluginManager.plugins;
-        }
-      });
-    }
-
     /**
      *  init funtion is called when html is loaded
      *  @memberof QuestionFormController
@@ -191,38 +177,6 @@ angular.module('createquestionapp', [])
     $scope.init = function () {
       $scope.searchQuestions();
       $scope.selectedIndex = undefined;
-      var qsManifest = org.ekstep.pluginframework.pluginManager.getPluginManifest($scope.pluginIdObj.question_set_id);
-      var qsVesrion = qsManifest.ver.split('.')[0];
-      var data = {
-        "request": {
-          "filters": {
-            "objectType": ["Content"],
-            "contentType": ["Plugin"],
-            "targets.id": $scope.pluginIdObj.question_set_id,
-            "targets.ver": {'<=': Number(qsVesrion)},
-            "status": "Live"
-          },
-          "limit": 50,
-          "fields": ['contentType','semanticVersion','appIcon']
-        }
-      };
-      ecEditor.getService('search').search(data, function(err, resp) {
-        var pluginsData = resp.data.result.content;
-        localStorage.setItem("qs-plugins", JSON.stringify(pluginsData));
-        var plugins = [];
-        ecEditor._.forEach(pluginsData, function(value, key) {
-          if (value) {
-            var obj = {
-              "id": value.identifier,
-              "ver": value.semanticVersion,
-              "type": 'plugin'
-            }
-            plugins.push(obj);
-          }
-        });
-        $scope.loadPlugins(plugins, []);
-      });
-
       ecEditor.addEventListener('editor:template:loaded', function(event, object) {
         if(object.formAction == 'question-filter-view') {
           $scope.filterForm = object.templatePath;
