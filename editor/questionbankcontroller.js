@@ -85,7 +85,7 @@ angular.module('createquestionapp', [])
 
     ecEditor.addEventListener('editor:form:change', function(event, data) {
       if (data.templateId == "filterMetaDataTemplate") {
-        if (data.key.toLowerCase(); == "concepts") {
+        if (data.key.toLowerCase() == "concepts") {
           $scope.filterObj.concepts = [];
           _.forEach(data.value, function(id) {
             $scope.filterObj.concepts.push(id.identifier);
