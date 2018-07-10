@@ -15,7 +15,7 @@ angular.module('createquestionapp', [])
     $scope.questions = [];
     $scope.itemRange = [];
     $scope.Totalconcepts;
-    $scope.Totaltopics;
+    $scope.totalTopics;
     $scope.selectedConceptsData;
     $scope.selectedTopicsData;
     $scope.selectedQueIndex;
@@ -45,7 +45,7 @@ angular.module('createquestionapp', [])
       "question_set_id": "org.ekstep.questionset",
       "question_create_id": "org.ekstep.question",
       "concepts_id": "org.ekstep.conceptselector",
-      "topics_id": "org.ekstep.conceptselector"
+      "topics_id": "org.ekstep.topicselector"
     }
     $scope.filterData = {
       request: {
@@ -85,15 +85,15 @@ angular.module('createquestionapp', [])
 
     ecEditor.addEventListener('editor:form:change', function(event, data) {
       if (data.templateId == "filterMetaDataTemplate") {
-        if (data.key == "concepts") {
+        if (data.key.toLowerCase(); == "concepts") {
           $scope.filterObj.concepts = [];
-          _.forEach(data.value, function(dataid) {
-            $scope.filterObj.concepts.push(dataid.identifier);
+          _.forEach(data.value, function(id) {
+            $scope.filterObj.concepts.push(id.identifier);
           });
         } else if (data.key == "topic") {
-          $scope.filterObj.topic = [];
-          _.forEach(data.value, function(dataid) {
-            $scope.filterObj.topic.push(dataid);
+          $scope.filterObj.topics = [];
+          _.forEach(data.value, function(id) {
+            $scope.filterObj.topics.push(id);
           });
         }
         $scope.searchQuestions($scope.filterObj);
@@ -154,7 +154,7 @@ angular.module('createquestionapp', [])
             case "concepts":
               data.request.filters.concepts = value;
               break;
-            case "topic":
+            case "topics":
               data.request.filters.topic = value;
               break;
           }
@@ -202,11 +202,6 @@ angular.module('createquestionapp', [])
           pluginObj.push(plugins);
           plugins = pluginObj;
         }
-        org.ekstep.pluginframework.pluginManager.loadAllPlugins(plugins, manifestMedia, function() {
-          if (typeof PluginManager != 'undefined') {
-            PluginManager.pluginMap = org.ekstep.pluginframework.pluginManager.plugins;
-          }
-        });
       }
       var qsManifest = org.ekstep.pluginframework.pluginManager.getPluginManifest($scope.pluginIdObj.question_set_id);
       var qsVesrion = qsManifest.ver.split('.')[0];
@@ -318,9 +313,9 @@ angular.module('createquestionapp', [])
         element: 'queSetTopicsTextBox',
         selectedTopics: [], // All composite keys except mediaType
         callback: function(data) {
-          $scope.Totaltopics = data.length;
+          $scope.totalTopics = data.length;
           $scope.topicsText = '(' + data.length + ') topics selected';
-          $scope.filterObj.topic = _.map(data, function(top) {
+          $scope.filterObj.topics = _.map(data, function(top) {
             return top.id;
           });
           $scope.selectedTopicsData = data;
