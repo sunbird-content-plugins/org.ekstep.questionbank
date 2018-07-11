@@ -88,15 +88,14 @@ angular.module('createquestionapp', [])
       $scope.searchQuestions($scope.filterObj);
     });
 
-    $scope.searchQuestions = function (filterData, callback) {
-      $scope.itemsLoading = true;
+    $scope.searchQuestions = function (filterData, callback){
+      $scope.itemsLoading = true; 
       var data = {
         request: {
           filters: {
             objectType: ["AssessmentItem"],
             status: []
           },
-
           sort_by: {"name": "desc"},
           limit: 200
         }
@@ -104,7 +103,6 @@ angular.module('createquestionapp', [])
       if (filterData) {
         $scope.filterObj = filterData;
       }
-
       if ($scope.filterObj.myQuestions) {
         var userId = $scope.currentUserId;
         data.request.filters.createdBy = userId;
