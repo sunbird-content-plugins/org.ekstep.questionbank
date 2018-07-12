@@ -97,6 +97,7 @@
 .qb-question-bank .content.wizard {
     height: 80vh;
     padding: 0;
+    overflow-y: auto;
 }
 
 .qb-questions-list {
@@ -145,9 +146,6 @@
 
 .qb-question-container {
     padding: 1%;
-   /* fix for question set list if question is more then scroll show*/
-    overflow-y: auto;
-    height: 66vh;
 }
 
 .qb-config-form {
@@ -229,7 +227,7 @@
     min-width: 26%;
 }
 
-#questionFilterTemplate #content-meta-form{
+#filterMetaDataTemplate #content-meta-form{
     margin-left: 0;
 }
 
