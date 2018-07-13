@@ -17,19 +17,14 @@
         "type": "plugin",
         "plugin": "org.ekstep.questionset.preview",
         "ver": "1.0"
-      },
-      {
-        "type": "plugin",
-        "plugin": "org.ekstep.questionunit.mcq",
-        "ver": "1.0"
-      },{
-        "type": "plugin",
-        "plugin": "org.ekstep.questionunit.ftb",
-        "ver": "1.0"
       },{
         "type": "plugin",
         "plugin": "org.ekstep.toaster",
         "ver": "1.0"
+      },
+      {
+        "type": "js",
+        "src": "editor/questionbankcontroller.js"
       }
     ],
     "menu": [],
@@ -44,11 +39,7 @@
       "type": "plugin",
       "plugin": "org.ekstep.questionset.preview",
       "ver": "1.0"
-    },{
-        "type": "plugin",
-        "plugin": "org.ekstep.questionunit.mcq",
-        "ver": "1.0"
-      }
+    }
     ]
   }
 }

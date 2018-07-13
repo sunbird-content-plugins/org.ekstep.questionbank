@@ -12,7 +12,6 @@ angular.module('createquestionapp', [])
     $scope.showConfigForm = false;
     $scope.isQuestionSetConfig = false;
     $scope.selQuestionObj = {};
-    $scope.filterObj = {};
     $scope.questions = [];
     $scope.itemRange = [];
     $scope.Totalconcepts;
@@ -62,8 +61,7 @@ angular.module('createquestionapp', [])
       }
     };
     $scope.csspath = ecEditor.resolvePluginResource(pluginInstance.manifest.id, pluginInstance.manifest.ver, 'editor/style.css');
-    $scope.contentNotFound = ecEditor.resolvePluginResource(pluginInstance.manifest.id, pluginInstance.manifest.ver, 'assets/contentnotfound.jpg');
-
+    $scope.noQuestionFound = ecEditor.resolvePluginResource(pluginInstance.manifest.id, pluginInstance.manifest.ver, 'assets/contentnotfound.jpg'); 
     $scope.questionSetConfigObj = {
       "title": "",
       "max_score": 1,
@@ -90,14 +88,14 @@ angular.module('createquestionapp', [])
       $scope.searchQuestions($scope.filterObj);
     });
 
-    $scope.searchQuestions = function (filterData, callback) {
+    $scope.searchQuestions = function (filterData, callback){
+      $scope.itemsLoading = true; 
       var data = {
         request: {
           filters: {
             objectType: ["AssessmentItem"],
             status: []
           },
-
           sort_by: {"name": "desc"},
           limit: 200
         }
@@ -105,7 +103,6 @@ angular.module('createquestionapp', [])
       if (filterData) {
         $scope.filterObj = filterData;
       }
-
       if ($scope.filterObj.myQuestions) {
         var userId = $scope.currentUserId;
         data.request.filters.createdBy = userId;
@@ -165,23 +162,19 @@ angular.module('createquestionapp', [])
             callback($scope.questions);
           }
         } else {
-          $scope.itemsLoading = false;
           $scope.errorMessage = true;
           $scope.$safeApply();
           return;
         }
       });
     };
-
     /**
      *  init funtion is called when html is loaded
      *  @memberof QuestionFormController
      */
     $scope.init = function () {
-      $scope.itemsLoading = true;
       $scope.searchQuestions();
       $scope.selectedIndex = undefined;
-
       ecEditor.addEventListener('editor:template:loaded', function(event, object) {
         if(object.formAction == 'question-filter-view') {
           $scope.filterForm = object.templatePath;
@@ -220,7 +213,6 @@ angular.module('createquestionapp', [])
         });
       });
 
-
       if (pluginInstance.editData) {
         $scope.selectedQuestions = pluginInstance.editData.data;
         $scope.questionSetConfigObj = pluginInstance.editData.config;
@@ -237,12 +229,10 @@ angular.module('createquestionapp', [])
         }
         $scope.editConfig($scope.selectedQuestions[0], 0);
         $scope.previewItem($scope.selectedQuestions[0], true);
-
-
       }
 
       var filterMetaData = {};
-      //ecEditor.dispatchEvent("org.ekstep.editcontentmeta:showpopup1", { action: 'question-filter-view', subType: 'questions', framework: "NCF", rootOrgId: "*", type: "content", popup: false, metadata: filterMetaData });
+      // ecEditor.dispatchEvent("org.ekstep.editcontentmeta:showpopup1", { action: 'question-filter-view', subType: 'questions', framework: "NCF", rootOrgId: "*", type: "content", popup: false, metadata: filterMetaData });
       ecEditor.dispatchEvent('org.ekstep.editcontentmeta:showpopup', { action: 'question-filter-view', subType: 'questions', framework: ecEditor.getContext('framework'), rootOrgId: ecEditor.getContext('channel'), type: 'content', popup: false, metadata: filterMetaData})
       ecEditor.dispatchEvent($scope.pluginIdObj.concepts_id + ':init', {
         element: 'queSetConceptsTextBox',
@@ -286,8 +276,7 @@ angular.module('createquestionapp', [])
         } else {
           console.log(error);
         }
-      })
-
+      });
     }
 
     /**
@@ -326,7 +315,6 @@ angular.module('createquestionapp', [])
       }
     }
 
-
     /**
      *  Creating list of selected questions for creating question set
      *  @memberof QuestionFormController
@@ -357,7 +345,6 @@ angular.module('createquestionapp', [])
       $scope.showConfigForm = true;
     }
 
-
     /**
      *  Funtion to remove question from selected question list
      *  @memberof QuestionFormController
@@ -386,7 +373,6 @@ angular.module('createquestionapp', [])
       $scope.setDisplayandScore();
     }
 
-
     /**
      *  Funtion to remove question from selected question list
      *  @memberof QuestionFormController
@@ -404,7 +390,6 @@ angular.module('createquestionapp', [])
       if (selectedObjIndex > -1) {
         $scope.questions[selectedObjIndex] = $scope.selQuestionObj;
       }
-
       delete $scope.questionObj;
     }
 
@@ -417,7 +402,6 @@ angular.module('createquestionapp', [])
       var length = $scope.selectedQuestions.length;
       $scope.questionSetConfigObj.total_items = length;
       var score = 0;
-
       for (var i = 0; i < length; i++) {
         score = score + $scope.selectedQuestions[i].max_score;
       }
@@ -425,7 +409,6 @@ angular.module('createquestionapp', [])
       $scope.$safeApply();
       $scope.createTotalItemRange();
     }
-
 
     /**
      *  Funtion to save question set
@@ -448,7 +431,6 @@ angular.module('createquestionapp', [])
       $scope.editConfig($scope.selectedQuestions[0], 0);
     }
 
-
     /**
      *  Funtion to add question set to editor. It dispatch an event to question set plugin for adding question set
      *  @memberof QuestionFormController
@@ -470,10 +452,9 @@ angular.module('createquestionapp', [])
       delete $scope.selectedQueIndex;
       $scope.selectedQueIndex = index;
       var filterMetaData = {};
-      //ecEditor.dispatchEvent("org.ekstep.editcontentmeta:showpopup1", { action: 'question-filter-view', subType: 'questions', framework: "NCF", rootOrgId: "*", type: "content", popup: false, metadata: filterMetaData });
+      // ecEditor.dispatchEvent("org.ekstep.editcontentmeta:showpopup1", { action: 'question-filter-view', subType: 'questions', framework: "NCF", rootOrgId: "*", type: "content", popup: false, metadata: filterMetaData });
       ecEditor.dispatchEvent('org.ekstep.editcontentmeta:showpopup', { action: 'question-filter-view', subType: 'questions', framework: ecEditor.getContext('framework'), rootOrgId: ecEditor.getContext('channel'), type: 'content', popup: false, metadata: filterMetaData})
     }
-
 
     /**  Funtion to dispatch event to question creation plugin for creating new questions
      *  @memberof QuestionFormController
@@ -498,10 +479,10 @@ angular.module('createquestionapp', [])
         _.each($scope.selectedQuestions, function(question,key){
           $scope.selectedQuestions[key].max_score = 1;
           if($scope.selectedQuestions[key].body == undefined){
-          	$scope.selectedQuestions[key].max_score = 1;
+            $scope.selectedQuestions[key].max_score = 1;
           }else{
-          	JSON.parse($scope.selectedQuestions[key].body).data.config.metadata.max_score = 1;
-          }				
+            JSON.parse($scope.selectedQuestions[key].body).data.config.metadata.max_score = 1;
+          }       
           $scope.selQuestionObj.max_score = 1;
         });
           ecEditor.dispatchEvent("org.ekstep.toaster:info", {
@@ -545,7 +526,6 @@ angular.module('createquestionapp', [])
           questionBody = question.body;
         $scope.sendForPreview(questionBody, question.version);
       }
-
     }
 
     $scope.getv1Template = function (templateRef, question, callback) {
@@ -684,9 +664,6 @@ angular.module('createquestionapp', [])
         }
       })
     }
-
-
-  }])
-
+  }]);
 
 //# sourceURL=questionbankctrl.js
