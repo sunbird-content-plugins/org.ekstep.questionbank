@@ -6,6 +6,8 @@
 'use strict';
 angular.module('createquestionapp', [])
   .controller('QuestionFormController', ['$scope', 'pluginInstance', function ($scope, pluginInstance) {
+    var savedFilters = null;
+    var savedQuestions = null;
     $scope.currentUserId = ecEditor.getContext('user').id;
     $scope.isQuestionTab = true;
     $scope.selectedQuestions = [];
@@ -65,7 +67,7 @@ angular.module('createquestionapp', [])
       }
     };
     $scope.csspath = ecEditor.resolvePluginResource(pluginInstance.manifest.id, pluginInstance.manifest.ver, 'editor/style.css');
-    $scope.contentNotFound = ecEditor.resolvePluginResource(pluginInstance.manifest.id, pluginInstance.manifest.ver, 'assets/contentnotfound.jpg');
+    $scope.noQuestionFound = ecEditor.resolvePluginResource(pluginInstance.manifest.id, pluginInstance.manifest.ver, 'assets/contentnotfound.jpg'); 
     $scope.questionSetConfigObj = {
       "title": "",
       "max_score": 1,
@@ -100,14 +102,14 @@ angular.module('createquestionapp', [])
       }
     });
 
-    $scope.searchQuestions = function (filterData, callback) {
+    $scope.searchQuestions = function (filterData, callback){
+      $scope.itemsLoading = true; 
       var data = {
         request: {
           filters: {
             objectType: ["AssessmentItem"],
             status: []
           },
-
           sort_by: {"name": "desc"},
           limit: 200
         }
@@ -115,7 +117,7 @@ angular.module('createquestionapp', [])
       if (filterData) {
         $scope.filterObj = filterData;
       }
-
+      savedFilters = $scope.filterObj;
       if ($scope.filterObj.myQuestions) {
         var userId = $scope.currentUserId;
         data.request.filters.createdBy = userId;
@@ -164,6 +166,7 @@ angular.module('createquestionapp', [])
       ecEditor.getService('assessment').getQuestions(data, function (err, resp) {
         if (!err) {
           $scope.questions = resp.data.result.items;
+          savedQuestions = $scope.questions;
           $scope.resultNotFound = resp.data.result.count;
           for (var i = 0; i < $scope.selectedQuestions.length; i++) {
             for (var j = 0; j < $scope.questions.length; j++) {
@@ -178,63 +181,19 @@ angular.module('createquestionapp', [])
             callback($scope.questions);
           }
         } else {
-          $scope.itemsLoading = false;
           $scope.errorMessage = true;
           $scope.$safeApply();
           return;
         }
       });
     };
-
     /**
      *  init funtion is called when html is loaded
      *  @memberof QuestionFormController
      */
     $scope.init = function () {
-      $scope.itemsLoading = true;
       $scope.searchQuestions();
       $scope.selectedIndex = undefined;
-
-      //Load all plugins
-      $scope.loadPlugins = function(plugins, manifestMedia) {
-        var pluginObj = [];
-        if (!Array.isArray(plugins)) {
-          pluginObj.push(plugins);
-          plugins = pluginObj;
-        }
-      }
-      var qsManifest = org.ekstep.pluginframework.pluginManager.getPluginManifest($scope.pluginIdObj.question_set_id);
-      var qsVesrion = qsManifest.ver.split('.')[0];
-      var data = {
-        "request": {
-          "filters": {
-            "objectType": ["Content"],
-            "contentType": ["Plugin"],
-            "targets.id": $scope.pluginIdObj.question_set_id,
-            "targets.ver": {'<=': Number(qsVesrion)},
-            "status": "Live"
-          },
-          "limit": 50,
-          "fields": ['contentType','semanticVersion','appIcon']
-        }
-      };
-      ecEditor.getService('search').search(data, function(err, resp) {
-        var pluginsData = resp.data.result.content;
-        localStorage.setItem("qs-plugins", JSON.stringify(pluginsData));
-        var plugins = [];
-        ecEditor._.forEach(pluginsData, function(value, key) {
-          if (value) {
-            var obj = {
-              "id": value.identifier,
-              "ver": value.semanticVersion,
-              "type": 'plugin'
-            }
-            plugins.push(obj);
-          }
-        });
-        $scope.loadPlugins(plugins, []);
-      });
-
       ecEditor.addEventListener('editor:template:loaded', function(event, object) {
         if(object.formAction == 'question-filter-view') {
           $scope.filterForm = object.templatePath;
@@ -242,8 +201,7 @@ angular.module('createquestionapp', [])
       })
 
       ecEditor.addEventListener(pluginInstance.manifest.id + ":saveQuestion", function (event, data) {
-        $scope.searchQuestions({}, function(questions) {
-          $scope.questions = questions;
+          $scope.questions = savedQuestions;
           if (!data.isSelected) {
             data.isSelected = true;
           }
@@ -271,7 +229,6 @@ angular.module('createquestionapp', [])
           $scope.previewItem($scope.selectedQuestions[0], true);
           $scope.$safeApply();
         });
-      });
 
       if (pluginInstance.editData) {
         $scope.selectedQuestions = pluginInstance.editData.data;
@@ -292,8 +249,7 @@ angular.module('createquestionapp', [])
       }
 
       var filterMetaData = {};
-      //ecEditor.dispatchEvent("org.ekstep.editcontentmeta:showpopup1", { action: 'question-filter-view', subType: 'questions', framework: "NCF", rootOrgId: "*", type: "content", popup: false, metadata: filterMetaData });
-      ecEditor.dispatchEvent('org.ekstep.editcontentmeta:showpopup', { action: 'question-filter-view', subType: 'questions', framework: ecEditor.getContext('framework'), rootOrgId: ecEditor.getContext('channel'), type: 'content', popup: false, metadata: filterMetaData})
+      ecEditor.dispatchEvent('org.ekstep.editcontentmeta:showpopup', { action: 'question-filter-view', subType: 'questions', framework: ecEditor.getContext('framework'), rootOrgId: ecEditor.getContext('channel'), type: 'content', popup: false, metadata: filterMetaData});
       ecEditor.dispatchEvent($scope.pluginIdObj.concepts_id + ':init', {
         element: 'queSetConceptsTextBox',
         selectedConcepts: [], // All composite keys except mediaType
@@ -527,8 +483,7 @@ angular.module('createquestionapp', [])
       delete $scope.selectedQueIndex;
       $scope.selectedQueIndex = index;
       var filterMetaData = {};
-      //ecEditor.dispatchEvent("org.ekstep.editcontentmeta:showpopup1", { action: 'question-filter-view', subType: 'questions', framework: "NCF", rootOrgId: "*", type: "content", popup: false, metadata: filterMetaData });
-      ecEditor.dispatchEvent('org.ekstep.editcontentmeta:showpopup', { action: 'question-filter-view', subType: 'questions', framework: ecEditor.getContext('framework'), rootOrgId: ecEditor.getContext('channel'), type: 'content', popup: false, metadata: filterMetaData})
+      ecEditor.dispatchEvent('org.ekstep.editcontentmeta:showpopup', { action: 'question-filter-view', subType: 'questions', framework: ecEditor.getContext('framework'), rootOrgId: ecEditor.getContext('channel'), type: 'content', popup: false, metadata: filterMetaData});
     }
 
     /**  Funtion to dispatch event to question creation plugin for creating new questions
