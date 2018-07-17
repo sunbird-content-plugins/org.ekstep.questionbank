@@ -17,7 +17,9 @@ angular.module('createquestionapp', [])
     $scope.questions = [];
     $scope.itemRange = [];
     $scope.Totalconcepts;
+    $scope.totalTopics;
     $scope.selectedConceptsData;
+    $scope.selectedTopicsData;
     $scope.selectedQueIndex;
     $scope.grades;
     $scope.languages;
@@ -40,10 +42,12 @@ angular.module('createquestionapp', [])
     $scope.filterObj = {};
     $scope.selectedIndex;
     $scope.conceptsText = '(0) Concepts';
+    $scope.topicsText = '(0) Topics';
     $scope.pluginIdObj = {
       "question_set_id": "org.ekstep.questionset",
       "question_create_id": "org.ekstep.question",
-      "concepts_id": "org.ekstep.conceptselector"
+      "concepts_id": "org.ekstep.conceptselector",
+      "topics_id": "org.ekstep.topicselector"
     }
     $scope.filterData = {
       request: {
@@ -82,12 +86,20 @@ angular.module('createquestionapp', [])
     };
 
     ecEditor.addEventListener('editor:form:change', function(event, data) {
-      $scope.filterObj.concepts = [];
-      if(data.key == "concepts")
-        _.forEach(data.value, function(dataid) {
-            $scope.filterObj.concepts.push(dataid.identifier);
-        });
-      $scope.searchQuestions($scope.filterObj);
+      if (data.templateId == "filterMetaDataTemplate") {
+        if (data.key.toLowerCase() == "concepts") {
+          $scope.filterObj.concepts = [];
+          _.forEach(data.value, function(id) {
+            $scope.filterObj.concepts.push(id.identifier);
+          });
+        } else if (data.key.toLowerCase() == "topic") {
+          $scope.filterObj.topics = [];
+          _.forEach(data.value, function(id) {
+            $scope.filterObj.topics.push(id);
+          });
+        }
+        $scope.searchQuestions($scope.filterObj);
+      }
     });
 
     $scope.searchQuestions = function (filterData, callback){
@@ -143,6 +155,9 @@ angular.module('createquestionapp', [])
               break;
             case "concepts":
               data.request.filters.concepts = value;
+              break;
+            case "topics":
+              data.request.filters.topic = value;
               break;
           }
         }
@@ -245,6 +260,21 @@ angular.module('createquestionapp', [])
             return concept.id;
           });
           $scope.selectedConceptsData = data;
+          $scope.searchQuestions();
+          $scope.$safeApply();
+        }
+      });
+
+      ecEditor.dispatchEvent($scope.pluginIdObj.topics_id + ':init', {
+        element: 'queSetTopicsTextBox',
+        selectedTopics: [], // All composite keys except mediaType
+        callback: function(data) {
+          $scope.totalTopics = data.length;
+          $scope.topicsText = '(' + data.length + ') topics selected';
+          $scope.filterObj.topics = _.map(data, function(top) {
+            return top.id;
+          });
+          $scope.selectedTopicsData = data;
           $scope.searchQuestions();
           $scope.$safeApply();
         }
