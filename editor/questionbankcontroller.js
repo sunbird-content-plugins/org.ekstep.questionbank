@@ -453,7 +453,7 @@ angular.module('createquestionapp', [])
       delete $scope.selectedQueIndex;
       $scope.selectedQueIndex = index;
       var filterMetaData = {};
-      ecEditor.dispatchEvent("org.ekstep.editcontentmeta:showpopup", { action: 'question-filter-view', subType: 'questions', framework: "NCF", rootOrgId: "*", type: "content", popup: false, metadata: filterMetaData });
+      ecEditor.dispatchEvent('org.ekstep.editcontentmeta:showpopup', { action: 'question-filter-view', subType: 'questions', framework: ecEditor.getContext('framework'), rootOrgId: ecEditor.getContext('channel'), type: 'content', popup: false, metadata: filterMetaData})
     }
 
     /**  Funtion to dispatch event to question creation plugin for creating new questions
