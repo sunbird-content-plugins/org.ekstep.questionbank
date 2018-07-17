@@ -42,7 +42,7 @@ angular.module('createquestionapp', [])
     $scope.filterObj = {};
     $scope.selectedIndex;
     $scope.conceptsText = '(0) Concepts';
-    $scope.topicsText = '(0) Concepts';
+    $scope.topicsText = '(0) Topics';
     $scope.pluginIdObj = {
       "question_set_id": "org.ekstep.questionset",
       "question_create_id": "org.ekstep.question",
@@ -92,7 +92,7 @@ angular.module('createquestionapp', [])
           _.forEach(data.value, function(id) {
             $scope.filterObj.concepts.push(id.identifier);
           });
-        } else if (data.key == "topic") {
+        } else if (data.key.toLowerCase() == "topic") {
           $scope.filterObj.topics = [];
           _.forEach(data.value, function(id) {
             $scope.filterObj.topics.push(id);
