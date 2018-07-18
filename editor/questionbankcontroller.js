@@ -165,15 +165,20 @@ angular.module('createquestionapp', [])
       // get Questions from questions api
       ecEditor.getService('assessment').getQuestions(data, function (err, resp) {
         if (!err) {
-          $scope.questions = resp.data.result.items;
-          savedQuestions = $scope.questions;
-          $scope.resultNotFound = resp.data.result.count;
-          for (var i = 0; i < $scope.selectedQuestions.length; i++) {
-            for (var j = 0; j < $scope.questions.length; j++) {
-              if ($scope.selectedQuestions[i].identifier == $scope.questions[j].identifier) {
-                $scope.questions[j].isSelected = true;
+          if(resp.data.result.count > 0) {
+            $scope.questions = resp.data.result.items;
+            savedQuestions = $scope.questions;
+            $scope.resultNotFound = resp.data.result.count;
+            for (var i = 0; i < $scope.selectedQuestions.length; i++) {
+              for (var j = 0; j < $scope.questions.length; j++) {
+                if ($scope.selectedQuestions[i].identifier == $scope.questions[j].identifier) {
+                  $scope.questions[j].isSelected = true;
+                }
               }
             }
+          } else {
+            $scope.resultNotFound = resp.data.result.count;
+            $scope.questions = [];
           }
           $scope.itemsLoading = false;
           $scope.$safeApply();
