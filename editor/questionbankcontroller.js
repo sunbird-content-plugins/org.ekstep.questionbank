@@ -198,36 +198,49 @@ angular.module('createquestionapp', [])
         if(object.formAction == 'question-filter-view') {
           $scope.filterForm = object.templatePath;
         }
-      })
-
+      });
       ecEditor.addEventListener(pluginInstance.manifest.id + ":saveQuestion", function (event, data) {
-          $scope.questions = savedQuestions;
-          if (!data.isSelected) {
-            data.isSelected = true;
-          }
-          var selQueIndex = _.findLastIndex($scope.questions, {
-            identifier: data.identifier
-          });
-          if (selQueIndex < 0) {
-            $scope.questions.unshift(data);
-          } else {
-            $scope.questions[selQueIndex] = data;
-          }
-          selQueIndex = _.findLastIndex($scope.selectedQuestions, {
-            identifier: data.identifier
-          });
-          if (selQueIndex < 0) {
-            $scope.selectedQuestions.unshift(data);
-          } else {
+          var handleCreatedQuestion = function() {
+            if (!data.isSelected) {
+              data.isSelected = true;
+            }
+            var selQueIndex = _.findLastIndex($scope.questions, {
+              identifier: data.identifier
+            });
+            if (selQueIndex < 0) {
+              $scope.questions.unshift(data);
+            } else {
+              $scope.questions[selQueIndex] = data;
+            }
+            selQueIndex = _.findLastIndex($scope.selectedQuestions, {
+              identifier: data.identifier
+            });
+            if (selQueIndex < 0) {
+              $scope.selectedQuestions.unshift(data);
+            } else {
 
-            $scope.selectedQuestions[selQueIndex] = data;
+              $scope.selectedQuestions[selQueIndex] = data;
+              $scope.$safeApply();
+            }
+
+            $scope.setDisplayandScore();
+            $scope.editConfig($scope.selectedQuestions[0], 0);
+            $scope.previewItem($scope.selectedQuestions[0], true);
             $scope.$safeApply();
+          };
+          /*
+            * Sometimes due to Event handling $scope is lost and the question list is not retained.
+            * In such a case, we are making another search call and adding the newly created question to that list.
+          */
+          if(!_.isArray(savedQuestions)){   
+            $scope.searchQuestions({},function(questions){
+              $scope.questions = questions;
+              handleCreatedQuestion();
+            });
+          } else {
+              $scope.questions = savedQuestions;
+              handleCreatedQuestion();
           }
-
-          $scope.setDisplayandScore();
-          $scope.editConfig($scope.selectedQuestions[0], 0);
-          $scope.previewItem($scope.selectedQuestions[0], true);
-          $scope.$safeApply();
         });
 
       if (pluginInstance.editData) {
