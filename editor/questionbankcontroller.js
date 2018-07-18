@@ -6,17 +6,20 @@
 'use strict';
 angular.module('createquestionapp', [])
   .controller('QuestionFormController', ['$scope', 'pluginInstance', function ($scope, pluginInstance) {
+    var savedFilters = null;
+    var savedQuestions = null;
     $scope.currentUserId = ecEditor.getContext('user').id;
     $scope.isQuestionTab = true;
     $scope.selectedQuestions = [];
     $scope.showConfigForm = false;
     $scope.isQuestionSetConfig = false;
     $scope.selQuestionObj = {};
-    $scope.filterObj = {};
     $scope.questions = [];
     $scope.itemRange = [];
     $scope.Totalconcepts;
+    $scope.totalTopics;
     $scope.selectedConceptsData;
+    $scope.selectedTopicsData;
     $scope.selectedQueIndex;
     $scope.grades;
     $scope.languages;
@@ -39,10 +42,12 @@ angular.module('createquestionapp', [])
     $scope.filterObj = {};
     $scope.selectedIndex;
     $scope.conceptsText = '(0) Concepts';
+    $scope.topicsText = '(0) Topics';
     $scope.pluginIdObj = {
       "question_set_id": "org.ekstep.questionset",
       "question_create_id": "org.ekstep.question",
-      "concepts_id": "org.ekstep.conceptselector"
+      "concepts_id": "org.ekstep.conceptselector",
+      "topics_id": "org.ekstep.topicselector"
     }
     $scope.filterData = {
       request: {
@@ -62,8 +67,7 @@ angular.module('createquestionapp', [])
       }
     };
     $scope.csspath = ecEditor.resolvePluginResource(pluginInstance.manifest.id, pluginInstance.manifest.ver, 'editor/style.css');
-    $scope.contentNotFound = ecEditor.resolvePluginResource(pluginInstance.manifest.id, pluginInstance.manifest.ver, 'assets/contentnotfound.jpg');
-
+    $scope.noQuestionFound = ecEditor.resolvePluginResource(pluginInstance.manifest.id, pluginInstance.manifest.ver, 'assets/contentnotfound.jpg'); 
     $scope.questionSetConfigObj = {
       "title": "",
       "max_score": 1,
@@ -82,22 +86,30 @@ angular.module('createquestionapp', [])
     };
 
     ecEditor.addEventListener('editor:form:change', function(event, data) {
-      $scope.filterObj.concepts = [];
-      if(data.key == "concepts")
-        _.forEach(data.value, function(dataid) {
-            $scope.filterObj.concepts.push(dataid.identifier);
-        });
-      $scope.searchQuestions($scope.filterObj);
+      if (data.templateId == "filterMetaDataTemplate") {
+        if (data.key.toLowerCase() == "concepts") {
+          $scope.filterObj.concepts = [];
+          _.forEach(data.value, function(id) {
+            $scope.filterObj.concepts.push(id.identifier);
+          });
+        } else if (data.key.toLowerCase() == "topic") {
+          $scope.filterObj.topics = [];
+          _.forEach(data.value, function(id) {
+            $scope.filterObj.topics.push(id);
+          });
+        }
+        $scope.searchQuestions($scope.filterObj);
+      }
     });
 
-    $scope.searchQuestions = function (filterData, callback) {
+    $scope.searchQuestions = function (filterData, callback){
+      $scope.itemsLoading = true; 
       var data = {
         request: {
           filters: {
             objectType: ["AssessmentItem"],
             status: []
           },
-
           sort_by: {"name": "desc"},
           limit: 200
         }
@@ -105,7 +117,7 @@ angular.module('createquestionapp', [])
       if (filterData) {
         $scope.filterObj = filterData;
       }
-
+      savedFilters = $scope.filterObj;
       if ($scope.filterObj.myQuestions) {
         var userId = $scope.currentUserId;
         data.request.filters.createdBy = userId;
@@ -144,20 +156,29 @@ angular.module('createquestionapp', [])
             case "concepts":
               data.request.filters.concepts = value;
               break;
+            case "topics":
+              data.request.filters.topic = value;
+              break;
           }
         }
       });
       // get Questions from questions api
       ecEditor.getService('assessment').getQuestions(data, function (err, resp) {
         if (!err) {
-          $scope.questions = resp.data.result.items;
-          $scope.resultNotFound = resp.data.result.count;
-          for (var i = 0; i < $scope.selectedQuestions.length; i++) {
-            for (var j = 0; j < $scope.questions.length; j++) {
-              if ($scope.selectedQuestions[i].identifier == $scope.questions[j].identifier) {
-                $scope.questions[j].isSelected = true;
+          if(resp.data.result.count > 0) {
+            $scope.questions = resp.data.result.items;
+            savedQuestions = $scope.questions;
+            $scope.resultNotFound = resp.data.result.count;
+            for (var i = 0; i < $scope.selectedQuestions.length; i++) {
+              for (var j = 0; j < $scope.questions.length; j++) {
+                if ($scope.selectedQuestions[i].identifier == $scope.questions[j].identifier) {
+                  $scope.questions[j].isSelected = true;
+                }
               }
             }
+          } else {
+            $scope.resultNotFound = resp.data.result.count;
+            $scope.questions = [];
           }
           $scope.itemsLoading = false;
           $scope.$safeApply();
@@ -165,61 +186,67 @@ angular.module('createquestionapp', [])
             callback($scope.questions);
           }
         } else {
-          $scope.itemsLoading = false;
           $scope.errorMessage = true;
           $scope.$safeApply();
           return;
         }
       });
     };
-
     /**
      *  init funtion is called when html is loaded
      *  @memberof QuestionFormController
      */
     $scope.init = function () {
-      $scope.itemsLoading = true;
       $scope.searchQuestions();
       $scope.selectedIndex = undefined;
-
       ecEditor.addEventListener('editor:template:loaded', function(event, object) {
         if(object.formAction == 'question-filter-view') {
           $scope.filterForm = object.templatePath;
         }
-      })
-
-      ecEditor.addEventListener(pluginInstance.manifest.id + ":saveQuestion", function (event, data) {
-        $scope.searchQuestions({}, function(questions) {
-          $scope.questions = questions;
-          if (!data.isSelected) {
-            data.isSelected = true;
-          }
-          var selQueIndex = _.findLastIndex($scope.questions, {
-            identifier: data.identifier
-          });
-          if (selQueIndex < 0) {
-            $scope.questions.unshift(data);
-          } else {
-            $scope.questions[selQueIndex] = data;
-          }
-          selQueIndex = _.findLastIndex($scope.selectedQuestions, {
-            identifier: data.identifier
-          });
-          if (selQueIndex < 0) {
-            $scope.selectedQuestions.unshift(data);
-          } else {
-
-            $scope.selectedQuestions[selQueIndex] = data;
-            $scope.$safeApply();
-          }
-
-          $scope.setDisplayandScore();
-          $scope.editConfig($scope.selectedQuestions[0], 0);
-          $scope.previewItem($scope.selectedQuestions[0], true);
-          $scope.$safeApply();
-        });
       });
+      ecEditor.addEventListener(pluginInstance.manifest.id + ":saveQuestion", function (event, data) {
+          var handleCreatedQuestion = function() {
+            if (!data.isSelected) {
+              data.isSelected = true;
+            }
+            var selQueIndex = _.findLastIndex($scope.questions, {
+              identifier: data.identifier
+            });
+            if (selQueIndex < 0) {
+              $scope.questions.unshift(data);
+            } else {
+              $scope.questions[selQueIndex] = data;
+            }
+            selQueIndex = _.findLastIndex($scope.selectedQuestions, {
+              identifier: data.identifier
+            });
+            if (selQueIndex < 0) {
+              $scope.selectedQuestions.unshift(data);
+            } else {
 
+              $scope.selectedQuestions[selQueIndex] = data;
+              $scope.$safeApply();
+            }
+
+            $scope.setDisplayandScore();
+            $scope.editConfig($scope.selectedQuestions[0], 0);
+            $scope.previewItem($scope.selectedQuestions[0], true);
+            $scope.$safeApply();
+          };
+          /*
+            * Sometimes due to Event handling $scope is lost and the question list is not retained.
+            * In such a case, we are making another search call and adding the newly created question to that list.
+          */
+          if(!_.isArray(savedQuestions)){   
+            $scope.searchQuestions({},function(questions){
+              $scope.questions = questions;
+              handleCreatedQuestion();
+            });
+          } else {
+              $scope.questions = savedQuestions;
+              handleCreatedQuestion();
+          }
+        });
 
       if (pluginInstance.editData) {
         $scope.selectedQuestions = pluginInstance.editData.data;
@@ -237,13 +264,10 @@ angular.module('createquestionapp', [])
         }
         $scope.editConfig($scope.selectedQuestions[0], 0);
         $scope.previewItem($scope.selectedQuestions[0], true);
-
-
       }
 
       var filterMetaData = {};
-      //ecEditor.dispatchEvent("org.ekstep.editcontentmeta:showpopup1", { action: 'question-filter-view', subType: 'questions', framework: "NCF", rootOrgId: "*", type: "content", popup: false, metadata: filterMetaData });
-      ecEditor.dispatchEvent('org.ekstep.editcontentmeta:showpopup', { action: 'question-filter-view', subType: 'questions', framework: ecEditor.getContext('framework'), rootOrgId: ecEditor.getContext('channel'), type: 'content', popup: false, metadata: filterMetaData})
+      ecEditor.dispatchEvent('org.ekstep.editcontentmeta:showpopup', { action: 'question-filter-view', subType: 'questions', framework: ecEditor.getContext('framework'), rootOrgId: ecEditor.getContext('channel'), type: 'content', popup: false, metadata: filterMetaData});
       ecEditor.dispatchEvent($scope.pluginIdObj.concepts_id + ':init', {
         element: 'queSetConceptsTextBox',
         selectedConcepts: [], // All composite keys except mediaType
@@ -254,6 +278,21 @@ angular.module('createquestionapp', [])
             return concept.id;
           });
           $scope.selectedConceptsData = data;
+          $scope.searchQuestions();
+          $scope.$safeApply();
+        }
+      });
+
+      ecEditor.dispatchEvent($scope.pluginIdObj.topics_id + ':init', {
+        element: 'queSetTopicsTextBox',
+        selectedTopics: [], // All composite keys except mediaType
+        callback: function(data) {
+          $scope.totalTopics = data.length;
+          $scope.topicsText = '(' + data.length + ') topics selected';
+          $scope.filterObj.topics = _.map(data, function(top) {
+            return top.id;
+          });
+          $scope.selectedTopicsData = data;
           $scope.searchQuestions();
           $scope.$safeApply();
         }
@@ -286,8 +325,7 @@ angular.module('createquestionapp', [])
         } else {
           console.log(error);
         }
-      })
-
+      });
     }
 
     /**
@@ -326,7 +364,6 @@ angular.module('createquestionapp', [])
       }
     }
 
-
     /**
      *  Creating list of selected questions for creating question set
      *  @memberof QuestionFormController
@@ -357,7 +394,6 @@ angular.module('createquestionapp', [])
       $scope.showConfigForm = true;
     }
 
-
     /**
      *  Funtion to remove question from selected question list
      *  @memberof QuestionFormController
@@ -386,7 +422,6 @@ angular.module('createquestionapp', [])
       $scope.setDisplayandScore();
     }
 
-
     /**
      *  Funtion to remove question from selected question list
      *  @memberof QuestionFormController
@@ -404,7 +439,6 @@ angular.module('createquestionapp', [])
       if (selectedObjIndex > -1) {
         $scope.questions[selectedObjIndex] = $scope.selQuestionObj;
       }
-
       delete $scope.questionObj;
     }
 
@@ -417,7 +451,6 @@ angular.module('createquestionapp', [])
       var length = $scope.selectedQuestions.length;
       $scope.questionSetConfigObj.total_items = length;
       var score = 0;
-
       for (var i = 0; i < length; i++) {
         score = score + $scope.selectedQuestions[i].max_score;
       }
@@ -425,7 +458,6 @@ angular.module('createquestionapp', [])
       $scope.$safeApply();
       $scope.createTotalItemRange();
     }
-
 
     /**
      *  Funtion to save question set
@@ -448,7 +480,6 @@ angular.module('createquestionapp', [])
       $scope.editConfig($scope.selectedQuestions[0], 0);
     }
 
-
     /**
      *  Funtion to add question set to editor. It dispatch an event to question set plugin for adding question set
      *  @memberof QuestionFormController
@@ -470,10 +501,8 @@ angular.module('createquestionapp', [])
       delete $scope.selectedQueIndex;
       $scope.selectedQueIndex = index;
       var filterMetaData = {};
-      //ecEditor.dispatchEvent("org.ekstep.editcontentmeta:showpopup1", { action: 'question-filter-view', subType: 'questions', framework: "NCF", rootOrgId: "*", type: "content", popup: false, metadata: filterMetaData });
-      ecEditor.dispatchEvent('org.ekstep.editcontentmeta:showpopup', { action: 'question-filter-view', subType: 'questions', framework: ecEditor.getContext('framework'), rootOrgId: ecEditor.getContext('channel'), type: 'content', popup: false, metadata: filterMetaData})
+      ecEditor.dispatchEvent('org.ekstep.editcontentmeta:showpopup', { action: 'question-filter-view', subType: 'questions', framework: ecEditor.getContext('framework'), rootOrgId: ecEditor.getContext('channel'), type: 'content', popup: false, metadata: filterMetaData});
     }
-
 
     /**  Funtion to dispatch event to question creation plugin for creating new questions
      *  @memberof QuestionFormController
@@ -498,10 +527,10 @@ angular.module('createquestionapp', [])
         _.each($scope.selectedQuestions, function(question,key){
           $scope.selectedQuestions[key].max_score = 1;
           if($scope.selectedQuestions[key].body == undefined){
-          	$scope.selectedQuestions[key].max_score = 1;
+            $scope.selectedQuestions[key].max_score = 1;
           }else{
-          	JSON.parse($scope.selectedQuestions[key].body).data.config.metadata.max_score = 1;
-          }				
+            JSON.parse($scope.selectedQuestions[key].body).data.config.metadata.max_score = 1;
+          }       
           $scope.selQuestionObj.max_score = 1;
         });
           ecEditor.dispatchEvent("org.ekstep.toaster:info", {
@@ -545,7 +574,6 @@ angular.module('createquestionapp', [])
           questionBody = question.body;
         $scope.sendForPreview(questionBody, question.version);
       }
-
     }
 
     $scope.getv1Template = function (templateRef, question, callback) {
@@ -684,9 +712,6 @@ angular.module('createquestionapp', [])
         }
       })
     }
-
-
-  }])
-
+  }]);
 
 //# sourceURL=questionbankctrl.js
