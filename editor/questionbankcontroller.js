@@ -55,13 +55,10 @@ angular.module('createquestionapp', [])
           "objectType": [
             "AssessmentItem"
           ],
-          "status": [],
-          "medium": [
-            "English"
-          ]
+          "status": ["Live"]
         },
         "sort_by": {
-          "name": "desc"
+          "lastUpdatedOn": "desc"
         },
         "limit": 200
       }
@@ -106,12 +103,16 @@ angular.module('createquestionapp', [])
       $scope.itemsLoading = true; 
       var data = {
         request: {
-          filters: {
-            objectType: ["AssessmentItem"],
-            status: []
+          "filters": {
+            "objectType": [
+              "AssessmentItem"
+            ],
+            "status": ["Live"]
           },
-          sort_by: {"name": "desc"},
-          limit: 200
+          "sort_by": {
+            "lastUpdatedOn": "desc"
+          },
+          "limit": 200
         }
       };
       if (filterData) {
