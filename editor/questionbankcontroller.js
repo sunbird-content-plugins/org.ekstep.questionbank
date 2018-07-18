@@ -165,15 +165,20 @@ angular.module('createquestionapp', [])
       // get Questions from questions api
       ecEditor.getService('assessment').getQuestions(data, function (err, resp) {
         if (!err) {
-          $scope.questions = resp.data.result.items;
-          savedQuestions = $scope.questions;
-          $scope.resultNotFound = resp.data.result.count;
-          for (var i = 0; i < $scope.selectedQuestions.length; i++) {
-            for (var j = 0; j < $scope.questions.length; j++) {
-              if ($scope.selectedQuestions[i].identifier == $scope.questions[j].identifier) {
-                $scope.questions[j].isSelected = true;
+          if(resp.data.result.count > 0) {
+            $scope.questions = resp.data.result.items;
+            savedQuestions = $scope.questions;
+            $scope.resultNotFound = resp.data.result.count;
+            for (var i = 0; i < $scope.selectedQuestions.length; i++) {
+              for (var j = 0; j < $scope.questions.length; j++) {
+                if ($scope.selectedQuestions[i].identifier == $scope.questions[j].identifier) {
+                  $scope.questions[j].isSelected = true;
+                }
               }
             }
+          } else {
+            $scope.resultNotFound = resp.data.result.count;
+            $scope.questions = [];
           }
           $scope.itemsLoading = false;
           $scope.$safeApply();
@@ -198,36 +203,49 @@ angular.module('createquestionapp', [])
         if(object.formAction == 'question-filter-view') {
           $scope.filterForm = object.templatePath;
         }
-      })
-
+      });
       ecEditor.addEventListener(pluginInstance.manifest.id + ":saveQuestion", function (event, data) {
-          $scope.questions = savedQuestions;
-          if (!data.isSelected) {
-            data.isSelected = true;
-          }
-          var selQueIndex = _.findLastIndex($scope.questions, {
-            identifier: data.identifier
-          });
-          if (selQueIndex < 0) {
-            $scope.questions.unshift(data);
-          } else {
-            $scope.questions[selQueIndex] = data;
-          }
-          selQueIndex = _.findLastIndex($scope.selectedQuestions, {
-            identifier: data.identifier
-          });
-          if (selQueIndex < 0) {
-            $scope.selectedQuestions.unshift(data);
-          } else {
+          var handleCreatedQuestion = function() {
+            if (!data.isSelected) {
+              data.isSelected = true;
+            }
+            var selQueIndex = _.findLastIndex($scope.questions, {
+              identifier: data.identifier
+            });
+            if (selQueIndex < 0) {
+              $scope.questions.unshift(data);
+            } else {
+              $scope.questions[selQueIndex] = data;
+            }
+            selQueIndex = _.findLastIndex($scope.selectedQuestions, {
+              identifier: data.identifier
+            });
+            if (selQueIndex < 0) {
+              $scope.selectedQuestions.unshift(data);
+            } else {
 
-            $scope.selectedQuestions[selQueIndex] = data;
+              $scope.selectedQuestions[selQueIndex] = data;
+              $scope.$safeApply();
+            }
+
+            $scope.setDisplayandScore();
+            $scope.editConfig($scope.selectedQuestions[0], 0);
+            $scope.previewItem($scope.selectedQuestions[0], true);
             $scope.$safeApply();
+          };
+          /*
+            * Sometimes due to Event handling $scope is lost and the question list is not retained.
+            * In such a case, we are making another search call and adding the newly created question to that list.
+          */
+          if(!_.isArray(savedQuestions)){   
+            $scope.searchQuestions({},function(questions){
+              $scope.questions = questions;
+              handleCreatedQuestion();
+            });
+          } else {
+              $scope.questions = savedQuestions;
+              handleCreatedQuestion();
           }
-
-          $scope.setDisplayandScore();
-          $scope.editConfig($scope.selectedQuestions[0], 0);
-          $scope.previewItem($scope.selectedQuestions[0], true);
-          $scope.$safeApply();
         });
 
       if (pluginInstance.editData) {
