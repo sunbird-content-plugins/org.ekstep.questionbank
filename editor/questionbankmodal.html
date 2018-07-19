@@ -94,9 +94,11 @@
                                         <div class="description">{{ question.description }}</div>
                                     </div>
                                     <div class="qb-question-action">
-                                        <span><i class="edit icon" id="edit-question-config"
+                                        <span class="ui icon" data-tooltip="edit question" data-inverted=""><i class="pencil alternate icon" id="edit-question-config"
                                                  ng-if="(currentUserId == question.createdBy) && (question.version != '1')"
-                                                 ng-click="editQuestion(question);generateTelemetry({type: 'click', subtype: 'select', id: 'button'},$event)"></i></span>
+                                                 ng-click="editQuestion(question);generateTelemetry({type: 'click', subtype: 'select', id: 'button'},$event)"></i>
+                                        </span>
+                                        <span class="ui icon" data-tooltip="copy question" data-inverted="" ><i class="copy icon" ng-click="copyQuestion(question);generateTelemetry({type: 'click', subtype: 'select', id: 'button'},$event)"></i></span>
                                         <div class="ui checkbox" ng-class="question.isSelected ? 'checked' : '' ">
                                             <input type="checkbox" ng-checked="question.isSelected ? 'checked' : ''"
                                                    name="check"

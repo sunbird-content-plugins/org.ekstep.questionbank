@@ -520,6 +520,11 @@ angular.module('createquestionapp', [])
         ecEditor.dispatchEvent($scope.pluginIdObj.question_create_id + ":showpopup", questionObj);
       }
     }
+    $scope.copyQuestion = function(questionObj){
+      //save question on server
+      
+      $scope.editQuestion(questionObj);
+    }
     $scope.shuffleWarnPopUp = function(){
       if($scope.questionSetConfigObj.shuffle_questions){
         $scope.configScore = true;
