@@ -154,7 +154,16 @@ angular.module('createquestionapp', [])
               });
               break;
             case "concepts":
-              data.request.filters.concepts = value;
+              data.request.filters.concepts = [];
+              value.forEach(function (v) {
+                if(_.isString(v)) {
+                  data.request.filters.concepts.push(v);
+                } else {
+                  if(v && v.identifier) {
+                    data.request.filters.concepts.push(v.identifier);
+                  }
+                }
+              });
               break;
             case "topics":
               data.request.filters.topic = value;
