@@ -531,6 +531,7 @@ angular.module('createquestionapp', [])
       }
     }
     $scope.saveCopiedQuestion = function(qData){
+      
       var assessmentId = undefined;
       var questionBody = JSON.parse(qData.body);
       questionBody.data.config.metadata.title = "Copy of - " + questionBody.data.config.metadata.title;
