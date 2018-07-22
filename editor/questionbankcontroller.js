@@ -522,8 +522,94 @@ angular.module('createquestionapp', [])
     }
     $scope.copyQuestion = function(questionObj){
       //save question on server
-      
-      $scope.editQuestion(questionObj);
+      if (ecEditor._.isUndefined(questionObj.body)) {
+        $scope.getItem(questionObj, function (questionObj) {
+          $scope.saveCopiedQuestion(questionObj);
+        });
+      } else {
+          $scope.saveCopiedQuestion(questionObj);
+      }
+    }
+    $scope.saveCopiedQuestion = function(qData){
+      var assessmentId = undefined;
+      var questionBody = JSON.parse(qData.body);
+      questionBody.data.config.metadata.title = "Copy of - " + questionBody.data.config.metadata.title;
+      var outRelations = [];
+      _.each(questionBody.data.config.metadata.concepts, function(concept){
+        outRelations.push({
+          "endNodeId": concept.identifier,
+          "relationType": "associatedTo"
+        });
+      });
+
+      var metadata = {
+      "code": "NA",
+      "name": questionBody.data.config.metadata.title,
+      "question": questionBody.data.data.question.text,
+      "isShuffleOption" : questionBody.data.config.isShuffleOption,
+      "body": JSON.stringify(questionBody),
+      "itemType": "UNIT",
+      "version": 2,
+      "category": questionBody.data.config.metadata.category,
+      "description": questionBody.data.config.metadata.description,
+      "createdBy": window.context.user.id,
+      "channel": ecEditor.getContext('channel'),
+      "type": questionBody.data.config.metadata.category.toLowerCase(), // backward compatibility
+      "template": "NA", // backward compatibility
+      "template_id": "NA", // backward compatibility
+      "topic":  questionBody.data.config.metadata.topic,
+      "framework": ecEditor.getContext('framework')
+    };
+    var dynamicOptions = [{"answer": true, "value": {"type": "text", "asset": "1"}}];
+    var mtfoptions = [{
+      "value": {
+        "type": "mixed",
+        "text": "इक",
+        "image": "",
+        "count": "",
+        "audio": "",
+        "resvalue": "इक",
+        "resindex": 0
+      },
+      "index": 0
+    }];
+    switch (questionBody.data.config.metadata.category) {
+      case 'MCQ':
+      metadata.options = dynamicOptions;
+      break;
+      case 'FTB':
+      metadata.answer = dynamicOptions;
+      break;
+      case 'MTF':
+      metadata.lhs_options = mtfoptions;
+      metadata.rhs_options = mtfoptions;
+      break;
+      default:
+      metadata.options = dynamicOptions;
+      break;
+    }
+    var qFormData = {
+      "request": {
+        "assessment_item": {
+          "objectType": "AssessmentItem",
+          "metadata": metadata,
+          "outRelations": outRelations
+        }
+      }
+    };
+
+    ecEditor.getService('assessment').saveQuestionV3(assessmentId, qFormData, function (err, resp) {
+      if (!err) {
+        var qMetadata = qFormData.request.assessment_item.metadata;
+        qMetadata.identifier = resp.data.result.node_id;
+        ecEditor.dispatchEvent($scope.pluginIdObj.question_create_id + ":showpopup", qMetadata);
+      } else {
+        ecEditor.dispatchEvent("org.ekstep.toaster:error", {
+          title: 'Failed to copy question...',
+          position: 'topCenter',
+        });
+      }
+    });
     }
     $scope.shuffleWarnPopUp = function(){
       if($scope.questionSetConfigObj.shuffle_questions){
