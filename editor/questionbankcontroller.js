@@ -545,7 +545,7 @@ angular.module('createquestionapp', [])
 
       var metadata = {
       "code": "NA",
-      "name": questionBody.data.config.metadata.title,
+      "name": "Copy of - " + questionBody.data.config.metadata.name,
       "question": questionBody.data.data.question.text,
       "isShuffleOption" : questionBody.data.config.isShuffleOption,
       "body": JSON.stringify(questionBody),
