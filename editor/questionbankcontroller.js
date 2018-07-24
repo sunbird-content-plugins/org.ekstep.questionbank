@@ -47,7 +47,8 @@ angular.module('createquestionapp', [])
       "question_set_id": "org.ekstep.questionset",
       "question_create_id": "org.ekstep.question",
       "concepts_id": "org.ekstep.conceptselector",
-      "topics_id": "org.ekstep.topicselector"
+      "topics_id": "org.ekstep.topicselector",
+      "question_bank_id": "org.ekstep.questionbank"
     }
     $scope.filterData = {
       request: {
@@ -542,25 +543,31 @@ angular.module('createquestionapp', [])
           "relationType": "associatedTo"
         });
       });
-
-      var metadata = {
-      "code": "NA",
-      "name": "Copy of - " + questionBody.data.config.metadata.name,
-      "question": questionBody.data.data.question.text,
-      "isShuffleOption" : questionBody.data.config.isShuffleOption,
-      "body": JSON.stringify(questionBody),
-      "itemType": "UNIT",
-      "version": 2,
-      "category": questionBody.data.config.metadata.category,
-      "description": questionBody.data.config.metadata.description,
-      "createdBy": window.context.user.id,
-      "channel": ecEditor.getContext('channel'),
-      "type": questionBody.data.config.metadata.category.toLowerCase(), // backward compatibility
-      "template": "NA", // backward compatibility
-      "template_id": "NA", // backward compatibility
-      "topic":  questionBody.data.config.metadata.topic,
-      "framework": ecEditor.getContext('framework')
-    };
+    var metadata = {
+        "code": "NA",
+        "name": "Copy of - " + questionBody.data.config.metadata.name,
+        "title": "Copy of - " + questionBody.data.config.metadata.name,
+        "medium": questionBody.data.config.metadata.medium,
+        "max_score": questionBody.data.config.metadata.max_score,
+        "gradeLevel": questionBody.data.config.metadata.gradeLevel,
+        "subject": questionBody.data.config.metadata.subject,
+        "board": questionBody.data.config.metadata.board,
+        "qlevel": questionBody.data.config.metadata.level,
+        "question": questionBody.data.data.question.text,
+        "isShuffleOption" : questionBody.data.config.isShuffleOption,
+        "body": JSON.stringify(questionBody),
+        "itemType": "UNIT",
+        "version": 2,
+        "category": questionBody.data.config.metadata.category,
+        "description": questionBody.data.config.metadata.description,
+        "createdBy": window.context.user.id,
+        "channel": ecEditor.getContext('channel'),
+        "type": questionBody.data.config.metadata.category.toLowerCase(), // backward compatibility
+        "template": "NA", // backward compatibility
+        "template_id": "NA", // backward compatibility
+        "topic":  questionBody.data.config.metadata.topic,
+        "framework": ecEditor.getContext('framework')
+      };
     var dynamicOptions = [{"answer": true, "value": {"type": "text", "asset": "1"}}];
     var mtfoptions = [{
       "value": {
@@ -603,6 +610,7 @@ angular.module('createquestionapp', [])
       if (!err) {
         var qMetadata = qFormData.request.assessment_item.metadata;
         qMetadata.identifier = resp.data.result.node_id;
+        ecEditor.dispatchEvent($scope.pluginIdObj.question_bank_id + ':saveQuestion', qMetadata);
         ecEditor.dispatchEvent($scope.pluginIdObj.question_create_id + ":showpopup", qMetadata);
       } else {
         ecEditor.dispatchEvent("org.ekstep.toaster:error", {
