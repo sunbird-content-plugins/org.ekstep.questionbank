@@ -481,8 +481,8 @@ angular.module('createquestionapp', [])
     $scope.deleteCallBack = function(err, resp) { // eslint-disable-line no-unused-vars
       if (!err) {
         _.each($scope.questions, function(question, key) {
-          if (!_.isUndefined(question) && !_.isUndefined(question.IL_UNIQUE_ID)) {
-            if (question.IL_UNIQUE_ID == $scope.assessmentId) {
+          if (!_.isUndefined(question) && !_.isUndefined(question.identifier)) {
+            if (question.identifier == $scope.assessmentId) {
               $scope.questions.splice(key, 1);
             }
           }
