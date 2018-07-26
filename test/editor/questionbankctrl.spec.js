@@ -189,8 +189,10 @@ describe("Question Bank", function() {
     spyOn(ecEditor, "dispatchEvent").and.callThrough();
     spyOn(ecEditor, "addEventListener").and.callThrough();
     spyOn($scope, "sendForPreview").and.callThrough();
-    spyOn($scope, "loadPlugins").and.callThrough();
     spyOn($scope, "saveConfig").and.callThrough();
+    spyOn($scope, "editQuestion").and.callThrough();   
+    spyOn($scope, "copyQuestion").and.callThrough();
+    spyOn($scope, "saveCopiedQuestion").and.callThrough();
     window.context = { "content_id": "", "sid": "rctrs9r0748iidtuhh79ust993", "user": { "id": "390", "name": "Chetan Sachdev", "email": "chetan.sachdev@tarento.com", "avtar": "https://release.ekstep.in/media/com_easysocial/defaults/avatars/user/medium.png", "logout": "https://release.ekstep.in/index.php?option=com_easysocial&view=login&layout=logout" }, "baseURL": "https://release.ekstep.in/", "editMetaLink": "/component/ekcontent/contentform/do_10097535?Itemid=0", "contentId": "do_112467889506631680131", "uid": "390", "etags": { "app": [], "partner": [], "dims": [] }, "pdata": { "id": "in.ekstep", "ver": "1.0", "pid": "contenteditor" } };
     iFrameArea = document.createElement('iframe');
     iFrameArea.id = 'iframeArea';
@@ -265,16 +267,12 @@ describe("Question Bank", function() {
     expect($scope).not.toBeUndefined();
   });
   it("should Call init", function() {
+    $scope.init();
     expect($scope).not.toBeUndefined();
-  });
-  xit("Should load Question set plugins",function(){
-    $scope.loadPlugins(plugins);
-    expect($scope.loadPlugins).toHaveBeenCalled();
   });
   it("Should call search questions function", function() {
     $scope.searchQuestions();
     expect($scope.searchQuestions).toHaveBeenCalled();
-    expect(ecEditor.getService('search').search).toHaveBeenCalled();
     expect(ecEditor.getService('assessment').getQuestions).toHaveBeenCalled();
   });
   it("Should call selectQuestion function", function() {
@@ -312,12 +310,25 @@ describe("Question Bank", function() {
     expect($scope.sendForPreview).toHaveBeenCalled();
     expect(ecEditor.dispatchEvent).toHaveBeenCalled();
   });
+  it("Should call editQuestion function", function() {
+    $scope.editQuestion(editQuestion);
+    expect($scope.editQuestion).toHaveBeenCalled();
+  });
+  it("Should call copyQuestion function", function() {
+    $scope.copyQuestion(editQuestion);
+    expect($scope.copyQuestion).toHaveBeenCalled();
+  });
+  it("Should call saveCopiedQuestion function", function() {
+    $scope.saveCopiedQuestion(JSON.stringify(editQuestion));
+    expect($scope.saveCopiedQuestion).toHaveBeenCalled();
+  });
   it("Should call saveConfig function", function() {
     var obj = {};
     obj.formAction = "question-filter-view";
     obj.templatePath = "";
     ecEditor.dispatchEvent("editor:template:loaded",obj);
-    ecEditor.dispatchEvent("org.ekstep.questionbank:saveQuestion",[]);
+    ecEditor.dispatchEvent("org.ekstep.topicselector:init");
+    ecEditor.dispatchEvent("org.ekstep.questionbank:saveQuestion",question);
     var cb = $scope.searchQuestions({},function(done){
       Function.prototype.apply.apply(self.timer.clearTimeout, [j$.getGlobal(), [timeout]]);
       if (err) {

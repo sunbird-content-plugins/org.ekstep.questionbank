@@ -56,7 +56,8 @@ org.ekstep.questionbank.EditorPlugin = org.ekstep.contenteditor.basePlugin.exten
       }
     };
     ecEditor.getService('search').search(data, function(err, resp) {
-      var pluginsData = resp.data.result.content;
+     if(!err){ 
+       var pluginsData = resp.data.result.content;
       instance._plugins = pluginsData;
       var plugins = [];
       ecEditor._.forEach(pluginsData, function(value, key) {
@@ -70,6 +71,7 @@ org.ekstep.questionbank.EditorPlugin = org.ekstep.contenteditor.basePlugin.exten
         }
       });
       org.ekstep.pluginframework.pluginManager.loadAllPlugins(_.isArray(plugins) ? plugins : [plugins], []);
+     }
     });
   },
   getplugins: function(event, callback){
