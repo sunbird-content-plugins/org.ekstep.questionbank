@@ -5,8 +5,5 @@
     },
     "devDependencies": {
         "ekstep-content-plugin-dev-common": "ekstep/ekstep-content-plugin-dev-common"
-    },
-    "dependencies": {
-        "gulp": "^3.9.1"
     }
 }
