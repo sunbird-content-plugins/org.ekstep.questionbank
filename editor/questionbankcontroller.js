@@ -56,19 +56,16 @@ angular.module('createquestionapp', [])
           "objectType": [
             "AssessmentItem"
           ],
-          "status": [],
-          "medium": [
-            "English"
-          ]
+          "status": ["Live"]
         },
         "sort_by": {
-          "name": "desc"
+          "lastUpdatedOn": "desc"
         },
         "limit": 200
       }
     };
     $scope.csspath = ecEditor.resolvePluginResource(pluginInstance.manifest.id, pluginInstance.manifest.ver, 'editor/style.css');
-    $scope.noQuestionFound = ecEditor.resolvePluginResource(pluginInstance.manifest.id, pluginInstance.manifest.ver, 'assets/contentnotfound.jpg'); 
+    $scope.questionnotfound = ecEditor.resolvePluginResource(pluginInstance.manifest.id, pluginInstance.manifest.ver, 'assets/contentnotfound.jpg'); 
     $scope.questionSetConfigObj = {
       "title": "",
       "max_score": 1,
@@ -107,12 +104,16 @@ angular.module('createquestionapp', [])
       $scope.itemsLoading = true; 
       var data = {
         request: {
-          filters: {
-            objectType: ["AssessmentItem"],
-            status: []
+          "filters": {
+            "objectType": [
+              "AssessmentItem"
+            ],
+            "status": ["Live"]
           },
-          sort_by: {"name": "desc"},
-          limit: 200
+          "sort_by": {
+            "lastUpdatedOn": "desc"
+          },
+          "limit": 200
         }
       };
       if (filterData) {
@@ -155,7 +156,16 @@ angular.module('createquestionapp', [])
               });
               break;
             case "concepts":
-              data.request.filters.concepts = value;
+              data.request.filters.concepts = [];
+              value.forEach(function (v) {
+                if(_.isString(v)) {
+                  data.request.filters.concepts.push(v);
+                } else {
+                  if(v && v.identifier) {
+                    data.request.filters.concepts.push(v.identifier);
+                  }
+                }
+              });
               break;
             case "topics":
               data.request.filters.topic = value;
