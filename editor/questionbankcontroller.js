@@ -532,7 +532,7 @@ angular.module('createquestionapp', [])
     }
 
     $scope.deleteQuestion = function(questionObj){
-      $scope.assessmentId = questionObj.IL_UNIQUE_ID;
+      $scope.assessmentId = questionObj.identifier;
       ecEditor.getService('assessment').deleteQuestion($scope.assessmentId, $scope.deleteCallBack);
     }
 
