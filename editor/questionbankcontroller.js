@@ -148,7 +148,7 @@ angular.module('createquestionapp', [])
               data.request.filters.subject = value;
               break;
             case "questionType":
-              ecEditor._.forEach($scope.questionTypes, function(val, key) {
+              ecEditor._.forEach($scope.questionTypes, function(val, key) { // eslint-disable-line no-unused-vars
                 if (value.length && value == val.name) {
                   data.request.filters.type = val.value;
                 }
@@ -530,6 +530,57 @@ angular.module('createquestionapp', [])
         ecEditor.dispatchEvent($scope.pluginIdObj.question_create_id + ":showpopup", questionObj);
       }
     }
+
+    $scope.deleteQuestion = function(questionObj){
+      $scope.assessmentId = questionObj.identifier;
+      ecEditor.getService('assessment').deleteQuestion($scope.assessmentId, $scope.deleteCallBack);
+    }
+
+    $scope.deleteCallBack = function(err, resp) { // eslint-disable-line no-unused-vars
+      if (!err) {
+        _.each($scope.questions, function(question, key) {
+          if (!_.isUndefined(question) && !_.isUndefined(question.identifier)) {
+            if (question.identifier == $scope.assessmentId) {
+              $scope.questions.splice(key, 1);
+            }
+          }
+        })
+      } else {
+        ecEditor.dispatchEvent("org.ekstep.toaster:error", {
+          title: 'Failed to delete question...',
+          position: 'topCenter',
+        });
+      }
+      $scope.$safeApply();
+    }
+
+    $scope.deleteQuestionHandler = function(questionObj) {
+      var config = {
+        template: ecEditor.resolvePluginResource(pluginInstance.manifest.id, pluginInstance.manifest.ver, "editor/deletepopup.html"),
+        controller: ['$scope', 'mainCtrlScope', function($scope, mainCtrlScope) {
+          $scope.delete = function() {
+            mainCtrlScope.deleteQuestion(questionObj);
+            $scope.closeThisDialog();
+          }
+
+          $scope.cancel = function(){
+            $scope.closeThisDialog();
+          }
+          $scope.fireTelemetry = function(data, event) {
+            mainCtrlScope.generateTelemetry({type: 'click', subtype: data.subtype, target: data.target}, event);
+          }
+        }],
+        resolve: {
+          mainCtrlScope: function() {
+            return $scope;
+          }
+        },
+        showClose: false
+      };
+
+      org.ekstep.contenteditor.api.getService('popup').open(config);
+    }
+
     $scope.shuffleWarnPopUp = function(){
       if($scope.questionSetConfigObj.shuffle_questions){
         $scope.configScore = true;
@@ -540,13 +591,13 @@ angular.module('createquestionapp', [])
             $scope.selectedQuestions[key].max_score = 1;
           }else{
             JSON.parse($scope.selectedQuestions[key].body).data.config.metadata.max_score = 1;
-          }       
+          }
           $scope.selQuestionObj.max_score = 1;
         });
-          ecEditor.dispatchEvent("org.ekstep.toaster:info", {
-              title: 'Each question will carry equal weightage of 1 mark when using Shuffle. To provide different weightage to individual questions please turn off Shuffle.',
-              position: 'topCenter',
-          });
+        ecEditor.dispatchEvent("org.ekstep.toaster:info", {
+          title: 'Each question will carry equal weightage of 1 mark when using Shuffle. To provide different weightage to individual questions please turn off Shuffle.',
+          position: 'topCenter',
+        });
       }else{
         $scope.configScore = false;
       }

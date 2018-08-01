@@ -59,7 +59,7 @@ org.ekstep.questionbank.EditorPlugin = org.ekstep.contenteditor.basePlugin.exten
       var pluginsData = resp.data.result.content;
       instance._plugins = pluginsData;
       var plugins = [];
-      ecEditor._.forEach(pluginsData, function(value, key) {
+      ecEditor._.forEach(pluginsData, function(value, key) { // eslint-disable-line no-unused-vars
         if (value) {
           var obj = {
             "id": value.identifier,
