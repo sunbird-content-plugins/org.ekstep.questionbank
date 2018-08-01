@@ -170,6 +170,12 @@ describe("EditorPlugin", function() {
       plugin.loadHtml(event,dataObj);
     });
   });
+  describe("load All QS plugins", function() {
+    it("should call load plugins", function() {
+      var qsManifest = {"ver":1};
+      expect(plugin.loadQSPlugins).toHaveBeenCalled();
+    });
+  });
 
   describe("load loadQSPlugins", function() {
     it("should call load html", function() {

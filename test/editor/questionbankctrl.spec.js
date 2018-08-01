@@ -194,6 +194,9 @@ describe("Question bank EditorPlugin", function() {
       spyOn($scope, "sendForPreview").and.callThrough();
       //spyOn($scope, "loadPlugins").and.callThrough();
       spyOn($scope, "saveConfig").and.callThrough();
+      spyOn($scope, "editQuestion").and.callThrough();   
+      spyOn($scope, "copyQuestion").and.callThrough();
+      spyOn($scope, "saveCopiedQuestion").and.callThrough();
       spyOn($scope, "deleteQuestion").and.callThrough();
       spyOn($scope, "deleteCallBack").and.callThrough();
       spyOn($scope, "deleteQuestionHandler").and.callThrough();
@@ -564,6 +567,18 @@ describe("Question bank EditorPlugin", function() {
       $scope.sendForPreview(questionBody, question.version);
       expect($scope.sendForPreview).toHaveBeenCalled();
       expect(ecEditor.dispatchEvent).toHaveBeenCalled();
+    });
+    it("Should call editQuestion function", function() {
+    $scope.editQuestion(editQuestion);
+    expect($scope.editQuestion).toHaveBeenCalled();
+    });
+    it("Should call copyQuestion function", function() {
+      $scope.copyQuestion(editQuestion);
+      expect($scope.copyQuestion).toHaveBeenCalled();
+    });
+    it("Should call saveCopiedQuestion function", function() {
+      $scope.saveCopiedQuestion(JSON.stringify(editQuestion));
+      expect($scope.saveCopiedQuestion).toHaveBeenCalled();
     });
     it("Should call saveConfig function", function() {
       var obj = {};

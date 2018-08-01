@@ -85,6 +85,8 @@
                     <span><i class="edit icon cursor-icon" id="edit-question-config"
                                                  ng-if="(currentUserId == question.createdBy) && (question.version != '1')"
                                                  ng-click="editQuestion(question);generateTelemetry({type: 'click', subtype: 'select', id: 'button'},$event)"></i></span>
+                    <span class="ui icon" data-tooltip="copy question" data-inverted="" ><i class="copy icon" 
+                                                  ng-click="copyQuestion(question);generateTelemetry({type: 'click', subtype: 'select', id: 'button'},$event)"></i></span>
                     <span><i class="trash alternate outline icon cursor-icon" id="delete-question-config"
                                                  ng-if="(currentUserId == question.createdBy) && (question.version != '1')"
                                                  ng-click="deleteQuestionHandler(question);generateTelemetry({type: 'click', subtype: 'select', id: 'button'},$event)"></i></span>
