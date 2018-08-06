@@ -677,7 +677,6 @@ angular.module('createquestionapp', [])
         "element": "#itemIframe"
       };
 
-      document.getElementById("itemIframe").contentDocument.location.reload(true);
       var pluginInstances = ecEditor.getPluginInstances();
       var previewInstance = _.find(pluginInstances, function (pi) {
         return pi.manifest.id === $scope._constants.previewPlugin
