@@ -55,7 +55,8 @@ org.ekstep.questionbank.EditorPlugin = org.ekstep.contenteditor.basePlugin.exten
         "fields": ['contentType','semanticVersion','appIcon']
       }
     };
-    ecEditor.getService('search').search(data, function(err, resp) {
+    var url = ecEditor.getConfig('pluginsRepoUrl') ? ecEditor.getConfig('pluginsRepoUrl') : undefined; 
+    ecEditor.getService('search').pluginsSearch(url, data, function(err, resp) {
      if(!err){ 
        var pluginsData = resp.data.result.content;
       instance._plugins = pluginsData;
