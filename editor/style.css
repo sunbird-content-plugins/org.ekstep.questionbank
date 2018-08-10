@@ -222,7 +222,13 @@
     display: flex;
     align-items: center;
 }
-
+.action-btn-checkbox{
+    padding-top: 6px;
+    float:right;
+}
+.action-btn {
+    float:right;
+}
 .ui.label.filter-input-label{
     min-width: 26%;
 }

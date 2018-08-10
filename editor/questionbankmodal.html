@@ -74,26 +74,27 @@
           <div class="seven wide column qb-question-container" ng-show="!isQuestionSetConfig">
             <div class="row qb-question-list-container">
               <div class="ui large divided items">
-                <div class="item select list-items" ng-repeat="question in questions" ng-class="{quesSelector: $index === selectedQueIndex}">
-                  <div class="middle aligned content" ng-click="previewItem(question, true); showSelectedQue($index);">
-                    <div class="header">{{ question.title }}</div>
+                <div class="item select list-items ui grid" ng-repeat="question in questions" ng-class="{quesSelector: $index === selectedQueIndex}">
+                  <div class="middle aligned content ten wide column" ng-click="previewItem(question, true); showSelectedQue($index);">
+                    <div class="header">{{ question.title | limitTo:100}}</div>
                     <div class="meta">{{question.medium}} | {{ question.type}} | {{ question.qlevel }}
                     </div>
                     <div class="description">{{ question.description }}</div>
                   </div>
-                  <div class="qb-question-action">
-                    <span><i class="edit icon cursor-icon" id="edit-question-config"
-                                                 ng-if="(currentUserId == question.createdBy) && (question.version != '1')"
-                                                 ng-click="editQuestion(question);generateTelemetry({type: 'click', subtype: 'select', id: 'button'},$event)"></i></span>
-                    <span class="ui icon" data-tooltip="copy question" data-inverted="" ><i class="copy icon" 
-                                                  ng-click="copyQuestion(question);generateTelemetry({type: 'click', subtype: 'select', id: 'button'},$event)"></i></span>
-                    <span><i class="trash alternate outline icon cursor-icon" id="delete-question-config"
-                                                 ng-if="(currentUserId == question.createdBy) && (question.version != '1')"
-                                                 ng-click="deleteQuestionHandler(question);generateTelemetry({type: 'click', subtype: 'select', id: 'button'},$event)"></i></span>
-                    <div class="ui checkbox" ng-class="question.isSelected ? 'checked' : '' ">
+                  <div class="qb-question-action two wide column">
+                    <div class="ui checkbox action-btn-checkbox" ng-class="question.isSelected ? 'checked' : '' ">
                       <input type="checkbox" ng-checked="question.isSelected ? 'checked' : ''" name="check" ng-click="selectQuestion(question);generateTelemetry({type: 'click', subtype: 'toggle', id: 'checkbox'},$event)">
                       <label></label>
                     </div>
+                    <span class="action-btn" ng-if="(currentUserId == question.createdBy) && (question.version != '1')">
+                      <i class="trash alternate outline icon cursor-icon" id="delete-question-config"                                            ng-click="deleteQuestionHandler(question);generateTelemetry({type: 'click', subtype: 'select', id: 'button'},$event)"></i>
+                    </span>
+                    <span class="ui icon action-btn" data-tooltip="copy question" data-inverted="" >
+                      <i class="copy icon" ng-click="copyQuestion(question);generateTelemetry({type: 'click', subtype: 'select', id: 'button'},$event)"></i>
+                    </span>
+                    <span class="action-btn" ng-if="(currentUserId == question.createdBy) && (question.version != '1')">
+                      <i class="edit icon cursor-icon" id="edit-question-config" ng-click="editQuestion(question);generateTelemetry({type: 'click', subtype: 'select', id: 'button'},$event)"></i>
+                    </span>
                   </div>
                 </div>
                 <div class="load-more-assets-warning-msg endpage" ng-show="questions.length == 200 || resultNotFound == 0">
