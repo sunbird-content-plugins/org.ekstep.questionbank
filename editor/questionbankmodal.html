@@ -76,7 +76,7 @@
               <div class="ui large divided items">
                 <div class="item select list-items ui grid" ng-repeat="question in questions" ng-class="{quesSelector: $index === selectedQueIndex}">
                   <div class="middle aligned content ten wide column" ng-click="previewItem(question, true); showSelectedQue($index);">
-                    <div class="header">{{ question.title | limitTo:100}}</div>
+                    <div class="header" style="display: -webkit-box;">{{ question.title}}</div>
                     <div class="meta">{{question.medium}} | {{ question.type}} | {{ question.qlevel }}
                     </div>
                     <div class="description">{{ question.description }}</div>

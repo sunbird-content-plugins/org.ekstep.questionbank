@@ -70,6 +70,14 @@
     margin-top: -21px;
     margin-bottom: 20px;
 }
+.header {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 25px;
+    max-height: 45px;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
 
 .ui.modal.qb-question-bank {
     /* position: inherit !important;*/
