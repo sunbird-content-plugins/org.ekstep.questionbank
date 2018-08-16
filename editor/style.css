@@ -250,6 +250,43 @@
 .concept-field{
     width: 100%;
 }
+
+.cursor-icon{
+    cursor: pointer;
+}
+
+/*Delete Popup CSS*/
+.ui.container.delete-popup-container{
+    margin: 0px;
+    background: #fff;
+    width: 450px;
+    padding: 20px;
+    margin-top: 9%;
+    border-radius: 7px;
+}
+
+.delete-popup-div{
+    margin: 10px 10px 25px 0px;
+}
+
+.warning-symbol{
+    display: inline;
+}
+
+.delete-confirm-message{
+    text-align: center;
+    margin: 10px;
+    font-size: 17px;
+    color: #5f5c5c;
+    display: inline;
+}
+
+.delete-actions-div{
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+}
+
 #searchText{
     border: none;
     box-shadow: none;

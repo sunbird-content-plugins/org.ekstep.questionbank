@@ -47,7 +47,8 @@ angular.module('createquestionapp', [])
       "question_set_id": "org.ekstep.questionset",
       "question_create_id": "org.ekstep.question",
       "concepts_id": "org.ekstep.conceptselector",
-      "topics_id": "org.ekstep.topicselector"
+      "topics_id": "org.ekstep.topicselector",
+      "question_bank_id": "org.ekstep.questionbank"
     }
     $scope.filterData = {
       request: {
@@ -148,7 +149,7 @@ angular.module('createquestionapp', [])
               data.request.filters.subject = value;
               break;
             case "questionType":
-              ecEditor._.forEach($scope.questionTypes, function(val, key) {
+              ecEditor._.forEach($scope.questionTypes, function(val, key) { // eslint-disable-line no-unused-vars
                 if (value.length && value == val.name) {
                   data.request.filters.type = val.value;
                 }
@@ -530,6 +531,155 @@ angular.module('createquestionapp', [])
         ecEditor.dispatchEvent($scope.pluginIdObj.question_create_id + ":showpopup", questionObj);
       }
     }
+    $scope.copyQuestion = function(questionObj){
+      //save question on server
+      if (ecEditor._.isUndefined(questionObj.body)) {
+        $scope.getItem(questionObj, function (questionObj) {
+          $scope.saveCopiedQuestion(questionObj);
+        });
+      } else {
+          $scope.saveCopiedQuestion(questionObj);
+      }
+    }
+    $scope.saveCopiedQuestion = function(qData){
+      
+      var assessmentId = undefined;
+      var questionBody = JSON.parse(qData.body);
+      questionBody.data.config.metadata.title = "Copy of - " + questionBody.data.config.metadata.title;
+      var outRelations = [];
+      _.each(questionBody.data.config.metadata.concepts, function(concept){
+        outRelations.push({
+          "endNodeId": concept.identifier,
+          "relationType": "associatedTo"
+        });
+      });
+    var metadata = {
+        "code": "NA",
+        "name": "Copy of - " + questionBody.data.config.metadata.name,
+        "title": "Copy of - " + questionBody.data.config.metadata.name,
+        "medium": questionBody.data.config.metadata.medium,
+        "max_score": questionBody.data.config.metadata.max_score,
+        "gradeLevel": questionBody.data.config.metadata.gradeLevel,
+        "subject": questionBody.data.config.metadata.subject,
+        "board": questionBody.data.config.metadata.board,
+        "qlevel": questionBody.data.config.metadata.level,
+        "question": questionBody.data.data.question.text,
+        "isShuffleOption" : questionBody.data.config.isShuffleOption,
+        "body": JSON.stringify(questionBody),
+        "itemType": "UNIT",
+        "version": 2,
+        "category": questionBody.data.config.metadata.category,
+        "description": questionBody.data.config.metadata.description,
+        "createdBy": window.context.user.id,
+        "channel": ecEditor.getContext('channel'),
+        "type": questionBody.data.config.metadata.category.toLowerCase(), // backward compatibility
+        "template": "NA", // backward compatibility
+        "template_id": "NA", // backward compatibility
+        "topic":  questionBody.data.config.metadata.topic,
+        "framework": ecEditor.getContext('framework')
+      };
+    var dynamicOptions = [{"answer": true, "value": {"type": "text", "asset": "1"}}];
+    var mtfoptions = [{
+      "value": {
+        "type": "mixed",
+        "text": "इक",
+        "image": "",
+        "count": "",
+        "audio": "",
+        "resvalue": "इक",
+        "resindex": 0
+      },
+      "index": 0
+    }];
+    switch (questionBody.data.config.metadata.category) {
+      case 'MCQ':
+      metadata.options = dynamicOptions;
+      break;
+      case 'FTB':
+      metadata.answer = dynamicOptions;
+      break;
+      case 'MTF':
+      metadata.lhs_options = mtfoptions;
+      metadata.rhs_options = mtfoptions;
+      break;
+      default:
+      metadata.options = dynamicOptions;
+      break;
+    }
+    var qFormData = {
+      "request": {
+        "assessment_item": {
+          "objectType": "AssessmentItem",
+          "metadata": metadata,
+          "outRelations": outRelations
+        }
+      }
+    };
+
+    ecEditor.getService('assessment').saveQuestionV3(assessmentId, qFormData, function (err, resp) {
+      if (!err) {
+        var qMetadata = qFormData.request.assessment_item.metadata;
+        qMetadata.identifier = resp.data.result.node_id;
+        ecEditor.dispatchEvent($scope.pluginIdObj.question_bank_id + ':saveQuestion', qMetadata);
+        ecEditor.dispatchEvent($scope.pluginIdObj.question_create_id + ":showpopup", qMetadata);
+      } else {
+        ecEditor.dispatchEvent("org.ekstep.toaster:error", {
+          title: 'Failed to copy question...',
+          position: 'topCenter',
+        });
+      }
+    });
+    }
+    $scope.deleteQuestion = function(questionObj){
+      $scope.assessmentId = questionObj.identifier;
+      ecEditor.getService('assessment').deleteQuestion($scope.assessmentId, $scope.deleteCallBack);
+    }
+
+    $scope.deleteCallBack = function(err, resp) { // eslint-disable-line no-unused-vars
+      if (!err) {
+        _.each($scope.questions, function(question, key) {
+          if (!_.isUndefined(question) && !_.isUndefined(question.identifier)) {
+            if (question.identifier == $scope.assessmentId) {
+              $scope.questions.splice(key, 1);
+            }
+          }
+        })
+      } else {
+        ecEditor.dispatchEvent("org.ekstep.toaster:error", {
+          title: 'Failed to delete question...',
+          position: 'topCenter',
+        });
+      }
+      $scope.$safeApply();
+    }
+
+    $scope.deleteQuestionHandler = function(questionObj) {
+      var config = {
+        template: ecEditor.resolvePluginResource(pluginInstance.manifest.id, pluginInstance.manifest.ver, "editor/deletepopup.html"),
+        controller: ['$scope', 'mainCtrlScope', function($scope, mainCtrlScope) {
+          $scope.delete = function() {
+            mainCtrlScope.deleteQuestion(questionObj);
+            $scope.closeThisDialog();
+          }
+
+          $scope.cancel = function(){
+            $scope.closeThisDialog();
+          }
+          $scope.fireTelemetry = function(data, event) {
+            mainCtrlScope.generateTelemetry({type: 'click', subtype: data.subtype, target: data.target}, event);
+          }
+        }],
+        resolve: {
+          mainCtrlScope: function() {
+            return $scope;
+          }
+        },
+        showClose: false
+      };
+
+      org.ekstep.contenteditor.api.getService('popup').open(config);
+    }
+
     $scope.shuffleWarnPopUp = function(){
       if($scope.questionSetConfigObj.shuffle_questions){
         $scope.configScore = true;
@@ -540,13 +690,13 @@ angular.module('createquestionapp', [])
             $scope.selectedQuestions[key].max_score = 1;
           }else{
             JSON.parse($scope.selectedQuestions[key].body).data.config.metadata.max_score = 1;
-          }       
+          }
           $scope.selQuestionObj.max_score = 1;
         });
-          ecEditor.dispatchEvent("org.ekstep.toaster:info", {
-              title: 'Each question will carry equal weightage of 1 mark when using Shuffle. To provide different weightage to individual questions please turn off Shuffle.',
-              position: 'topCenter',
-          });
+        ecEditor.dispatchEvent("org.ekstep.toaster:info", {
+          title: 'Each question will carry equal weightage of 1 mark when using Shuffle. To provide different weightage to individual questions please turn off Shuffle.',
+          position: 'topCenter',
+        });
       }else{
         $scope.configScore = false;
       }
