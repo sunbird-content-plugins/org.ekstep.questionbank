@@ -37,7 +37,6 @@ org.ekstep.questionbank.EditorPlugin = org.ekstep.contenteditor.basePlugin.exten
       }
     });
   },
-
   loadQSPlugins: function(){
     var instance = this;
     var qsManifest = org.ekstep.pluginframework.pluginManager.getPluginManifest("org.ekstep.questionset");
@@ -55,25 +54,40 @@ org.ekstep.questionbank.EditorPlugin = org.ekstep.contenteditor.basePlugin.exten
         "fields": ['contentType','semanticVersion','appIcon']
       }
     };
-    var url = ecEditor.getConfig('pluginsRepoUrl') ? ecEditor.getConfig('pluginsRepoUrl') : undefined; 
-    ecEditor.getService('search').pluginsSearch(url, data, function(err, resp) {
-     if(!err){ 
-       var pluginsData = resp.data.result.content;
-      instance._plugins = pluginsData;
-      var plugins = [];
-      ecEditor._.forEach(pluginsData, function(value, key) { // eslint-disable-line no-unused-vars
-        if (value) {
-          var obj = {
-            "id": value.identifier,
-            "ver": value.semanticVersion,
-            "type": 'plugin'
-          }
-          plugins.push(obj);
-        }
+
+    var pluginsData;
+    if(_.isFunction(ecEditor.getService('search').pluginsSearch)){
+      var url = ecEditor.getConfig('pluginsRepoUrl') ? ecEditor.getConfig('pluginsRepoUrl') : undefined; 
+      ecEditor.getService('search').pluginsSearch(url, data, function(err, resp) {
+       if(!err){ 
+          pluginsData = resp.data.result.content;
+          instance.pluginsRespHandler(pluginsData);
+       }
       });
-      org.ekstep.pluginframework.pluginManager.loadAllPlugins(_.isArray(plugins) ? plugins : [plugins], []);
-     }
+    }else{
+      ecEditor.getService('search').search(data, function(err, resp) {
+       if(!err){ 
+          pluginsData = resp.data.result.content;
+          instance.pluginsRespHandler(pluginsData);
+       }
+     });
+    }
+  },
+  pluginsRespHandler: function(pluginsData){
+    var instance = this;
+    instance._plugins = pluginsData;
+    var plugins = [];
+    ecEditor._.forEach(pluginsData, function(value, key) { // eslint-disable-line no-unused-vars
+      if (value) {
+        var obj = {
+          "id": value.identifier,
+          "ver": value.semanticVersion,
+          "type": 'plugin'
+        }
+        plugins.push(obj);
+      }
     });
+    org.ekstep.pluginframework.pluginManager.loadAllPlugins(_.isArray(plugins) ? plugins : [plugins], []);
   },
   getplugins: function(event, callback){
     var instance = this;
