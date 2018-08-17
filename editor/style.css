@@ -74,7 +74,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     line-height: 25px;
-    max-height: 45px;
+    max-height: 50px;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
 }
@@ -115,7 +115,7 @@
 .qb-list-container > .ui.divided.items > .item:first-child {
     border-top: none;
     margin-top: 0 !important;
-    padding-top: 1% !important;
+    padding-top: 2% !important;
 }
 
 .qb-question-list-container > .ui.divided.items > .item:first-child {
@@ -202,6 +202,7 @@
 
 .qb-question-action {
     padding-top: 2.5%;
+    padding-right: 4% !important;
 }
 
 .qb-question-action > span > i {
