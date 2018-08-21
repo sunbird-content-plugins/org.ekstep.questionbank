@@ -357,6 +357,8 @@ angular.module('createquestionapp', [])
      *  @param {Object} selQuestion Selected question object
      */
     $scope.selectQuestion = function (selQuestion) {
+      //play preview
+      $scope.previewItem(selQuestion, true);
       var isQuestionSelected = selQuestion.isSelected;
       if (ecEditor._.isUndefined(selQuestion.body)) {
         $scope.getItem(selQuestion, function (selQuestion) {
