@@ -279,3 +279,8 @@
     padding-left: 0;
     border-radius: 0;
 }
+#qc-loader-msg{
+    position: absolute;
+    left: 30%;
+    margin-top: 9%;
+}

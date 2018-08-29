@@ -64,12 +64,12 @@
         </div>
       </div>
       <div class="ui divider"></div>
-      <div class="ui segments" ng-show="itemsLoading">
+      <div class="qb-questions-list">
+       <div class="ui segments" ng-show="itemsLoading">
         <div class="ui active inverted dimmer">
-          <div class="ui text loader">Please wait, We are fetching that content for you.</div>
+          <div class="ui text loader" id="qc-loader-msg">Please wait, We are fetching that content for you.</div>
         </div>
       </div>
-      <div class="qb-questions-list">
         <div class="ui two column horizontally padded grid" ng-show="!itemsLoading">
           <div class="seven wide column qb-question-container" ng-show="!isQuestionSetConfig">
             <div class="row qb-question-list-container">
