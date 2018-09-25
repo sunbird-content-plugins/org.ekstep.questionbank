@@ -795,7 +795,7 @@ angular.module('createquestionapp', [])
             })
           },
           "pluginId": "org.ekstep.questionset.quiz",
-          "pluginVer": "1.1",
+          "pluginVer": "1.0",
           "id": "80532057-749a-4534-812b-ec702c99b4b8",
           "type": "mcq",
           "templateId": "horizontalMCQ",
@@ -864,7 +864,7 @@ angular.module('createquestionapp', [])
         "pageId": ecEditor.getCurrentStage().id,
         "target": {
           "id": eventId,
-          "ver": "1.1",
+          "ver": "1.0",
           "type": data.type
         },
         "plugin": {
