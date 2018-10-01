@@ -64,12 +64,12 @@
         </div>
       </div>
       <div class="ui divider"></div>
-      <div class="ui segment" ng-show="itemsLoading">
+      <div class="qb-questions-list">
+       <div class="ui segments" ng-show="itemsLoading">
         <div class="ui active inverted dimmer">
-          <div class="ui text loader">Just one second, We are fetching that content for you.</div>
+          <div class="ui text loader" id="qc-loader-msg">Please wait, We are fetching that content for you.</div>
         </div>
       </div>
-      <div class="qb-questions-list">
         <div class="ui two column horizontally padded grid" ng-show="!itemsLoading">
           <div class="seven wide column qb-question-container" ng-show="!isQuestionSetConfig">
             <div class="row qb-question-list-container">
@@ -137,7 +137,7 @@
                   <div class="field">
                     <div class="ui fluid labeled input">
                       <div class="ui label">Configure Score</div>
-                      <input id="max_score" name="max_score" ng-model="selQuestionObj.max_score" type="number" min="1" ng-click="generateTelemetry({type: 'select', subtype: 'dropDown', id: 'dropDown'},$event)" ng-change="saveConfig();setDisplayandScore();" ng-disabled="configScore || questionSetConfigObj.shuffle_questions" />
+                      <input id="max_score" name="max_score" ng-model="selQuestionObj.max_score" type="number" min="1" ng-click="generateTelemetry({type: 'select', subtype: 'dropDown', id: 'dropDown'},$event)" ng-change="saveConfig();setDisplayandScore();" ng-disabled="configScore || questionSetConfigObj.shuffle_questions" onkeypress="return (event.charCode == 8 || event.charCode == 0) ? null : event.charCode >= 48 && event.charCode <= 57"/>
                     </div>
                   </div>
                 </div>
