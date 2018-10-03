@@ -86,7 +86,7 @@
     padding-top: 2.3% !important;
 }
 
-.qb-question-bank .content.wizard {
+.qb-question-bank .content.wizard, .questionSetDiv {
     height: 80vh;
     padding: 0;
     overflow-y: auto;
