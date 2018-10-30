@@ -299,3 +299,6 @@
     left: 30%;
     margin-top: 9%;
 }
+.qc-selected-quescount{
+       float: right;
+    }
