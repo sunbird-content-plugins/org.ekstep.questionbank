@@ -646,7 +646,8 @@ angular.module('createquestionapp', [])
             }
           }
         })
-         _.each($scope.selectedQuestions, function(question, key) {
+        //after deleting question the selection question updated
+        _.each($scope.selectedQuestions, function(question, key) {
           if (!_.isUndefined(question) && !_.isUndefined(question.identifier)) {
             if (question.identifier == $scope.assessmentId) {
               $scope.selectedQuestions.splice(key, 1);
