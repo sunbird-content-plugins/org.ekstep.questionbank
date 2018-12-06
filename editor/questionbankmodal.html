@@ -72,8 +72,11 @@
       </div>
         <div class="ui two column horizontally padded grid" ng-show="!itemsLoading">
           <div class="seven wide column qb-question-container" ng-show="!isQuestionSetConfig">
+              <span class="ui label">Total Question : {{questions.length}}</span>
+              <span class="ui label qc-selected-quescount">Selected Question : {{selectedQuestions.length}}</span>
             <div class="row qb-question-list-container">
               <div class="ui large divided items">
+                 
                 <div class="item select list-items ui grid" ng-repeat="question in questions" ng-class="{quesSelector: $index === selectedQueIndex}">
                   <div class="middle aligned content nine wide column" ng-click="previewItem(question, true); showSelectedQue($index);">
                     <div class="header" style="display: -webkit-box;">{{ question.title}}</div>
@@ -106,6 +109,7 @@
             </div>
           </div>
           <div class="seven wide column qb-question-container" ng-show="isQuestionSetConfig">
+              <span class="ui label">Total Question in Question Set : {{selectedQuestions.length}}</span>
             <div class="column qb-list-container" ng-show="isQuestionSetConfig">
               <div class="ui large divided items">
                 <div class="item select list-items ui grid" ng-repeat="selQuestion in selectedQuestions" ng-class="{quesSelector: $index === selectedIndex}">
