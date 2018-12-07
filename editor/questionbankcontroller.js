@@ -548,6 +548,7 @@ angular.module('createquestionapp', [])
       var assessmentId = undefined;
       var questionBody = JSON.parse(qData.body);
       questionBody.data.config.metadata.title = "Copy of - " + questionBody.data.config.metadata.title;
+       questionBody.data.config.metadata.level = questionBody.data.config.metadata.qlevel || questionBody.data.config.metadata.level
       var outRelations = [];
       _.each(questionBody.data.config.metadata.concepts, function(concept){
         outRelations.push({
@@ -564,7 +565,7 @@ angular.module('createquestionapp', [])
         "gradeLevel": questionBody.data.config.metadata.gradeLevel,
         "subject": questionBody.data.config.metadata.subject,
         "board": questionBody.data.config.metadata.board,
-        "qlevel": questionBody.data.config.metadata.qlevel || questionBody.data.config.metadata.level,
+        "qlevel": questionBody.data.config.metadata.level,
         "question": questionBody.data.data.question.text,
         "isShuffleOption" : questionBody.data.config.isShuffleOption,
         "body": JSON.stringify(questionBody),
