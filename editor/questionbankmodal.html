@@ -92,7 +92,7 @@
                     <span class="action-btn" ng-if="(currentUserId == question.createdBy) && (question.version != '1')" data-tooltip="delete question" data-inverted="">
                       <i class="trash alternate outline icon cursor-icon" id="delete-question-config"                                            ng-click="deleteQuestionHandler(question);generateTelemetry({type: 'click', subtype: 'select', id: 'button'},$event)"></i>
                     </span>
-                    <span class="ui icon action-btn" data-tooltip="copy question" data-inverted="" ng-if="question.version != '1'">
+                    <span class="ui icon action-btn" data-tooltip="copy question" data-inverted="" ng-if="question.version != '1' && question.framework == framework">
                       <i class="copy icon" ng-click="copyQuestion(question);generateTelemetry({type: 'click', subtype: 'select', id: 'button'},$event)"></i>
                     </span>
                     <span class="action-btn" ng-if="(currentUserId == question.createdBy) && (question.version != '1')" data-tooltip="edit question" data-inverted="">
